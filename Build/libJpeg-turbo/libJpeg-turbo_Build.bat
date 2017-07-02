@@ -1,27 +1,30 @@
 @echo off
 setlocal
 
-rem CMake
-set cmakePath=cmake-3.7.2-win64-x64\bin\cmake.exe
+rem FastCopy
+set fastcopyPath=FastCopy330_x64\FastCopy.exe
 
-rem nasm
-set nasmPath=nasm\nasm.exe
+rem FastCopyモード
+set fastcopyMode=/force_close
 
 rem ninja
 set ninjaPath=ninja-1.7.2\ninja.exe
 
-rem ライブラリパス
-set libJpeg-turboDir=libjpeg-turbo-1.5.1
+rem バージョン設定
+set libJpeg-turboVersion=1.5.1
 
-rem Release/Debug切り替え
-if /%1==/debug (
-    set configType=Debug
+rem 並列ビルド数
+set numOfParallel=%NUMBER_OF_PROCESSORS%
+
+rem 引数解析
+if /%1==/install (
+	set buildType=install
 ) else (
-    set configType=Release
+	set buildType=
 )
 
 rem ビルド条件表示
-echo config type : %configType%
+echo build type : %buildType%
 
 rem 現在のパスの保持
 for /f "delims=" %%f in ( 'cd' ) do set currentPath=%%f
@@ -34,15 +37,10 @@ cd /d "%batchPath%..\..\"
 for /f "delims=" %%f in ( 'cd' ) do set sourceDir=%%f
 cd /d "%currentPath%"
 
-rem CMakeパス作成
-set cmakeExe="%sourceDir%\Build\Tools\%cmakePath%"
-rem CMakeパス表示
-echo CMake : %cmakeExe%
-
-rem NASMパス作成
-set nasmExe="%sourceDir%\Build\Tools\%nasmPath%"
-rem NASMパス表示
-echo NASM : %nasmExe%
+rem FastCopyパス作成
+set fastcopyExe="%sourceDir%\Build\Tools\%fastcopyPath%"
+rem FastCopyパス表示
+echo FastCopy : %fastcopyExe%
 
 rem Ninja
 set ninjaExe="%sourceDir%\%ninjaPath%"
@@ -51,11 +49,6 @@ echo Ninja : %ninjaExe%
 
 rem Ninjaファイルチェック
 call "%sourceDir%\Build\Ninja\Ninja_Build.bat"
-
-rem libJpeg-turbo
-set libJpeg-turboPath=%sourceDir%\%libJpeg-turboDir%
-rem libJpeg-turboパス表示
-echo libJpeg-turbo : %libJpeg-turboPath%
 
 rem アドレスモデル切り替え
 if /%Platform%==/ (
@@ -67,14 +60,37 @@ if /%Platform%==/ (
 rem Visual Studioバージョン切り替え
 if /%VisualStudioVersion%==/11.0 (
 	set vsVersion=vs2012
+	set vcVersion=110
 ) else if /%VisualStudioVersion%==/12.0 (
 	set vsVersion=vs2013
+	set vcVersion=120
 ) else if /%VisualStudioVersion%==/14.0 (
 	set vsVersion=vs2015
+	set vcVersion=140
 ) else if /%VisualStudioVersion%==/15.0 (
 	set vsVersion=vs2017
+	set vcVersion=141
 ) else (
 	set vsVersion=vs2010
+	set vcVersion=100
+)
+
+echo Release
+cd /d %batchPath%
+call :Main release
+echo Debug
+cd /d %batchPath%
+call :Main debug
+
+goto :EOF
+
+:Main
+
+rem Release/Debug切り替え
+if /%1==/debug (
+    set configType=Debug
+) else (
+    set configType=Release
 )
 
 rem ビルドディレクトリ
@@ -82,22 +98,52 @@ set buildDir=%batchPath%Build_%vsVersion%_%platformName%_%configType%
 
 rem ビルドディレクトリ表示
 echo build directory : %buildDir%
+
+rem インストールディレクトリ
+set finalDir=%sourceDir%\Final\v%vcVersion%\libJpeg-turbo
+
 rem ビルドディレクトリ確認
-if not exist "%buildDir%" (
-	mkdir "%buildDir%"
-)
+rem if not exist "%buildDir%" (
+	rem Configuration実行
+	call %batchPath%libJpeg-turbo_Configuration.bat %1
+rem )
+
 rem ビルドディレクトリへ移動
 cd /d "%buildDir%"
+%ninjaExe% %buildType% -j %numOfParallel%
+call :ErrorCheck
 
-%cmakeExe% "%libJpeg-turboPath%" ^
--G "Ninja"  ^
--DCMAKE_MAKE_PROGRAM=%ninjaExe:\=/% ^
--DCMAKE_BUILD_TYPE=%configType% ^
--DCMAKE_DEBUG_POSTFIX=d ^
--DCMAKE_INSTALL_PREFIX="%buildDir:\=/%/install" ^
--DNASM=%nasmExe:\=/% ^
--DWITH_CRT_DLL=ON ^
--DWITH_JPEG8=ON ^
--DWITH_TURBOJPEG=OFF
+rem インストール
+if /%buildType%==/install (
+	rem インストールディレクトリ表示
+	echo install : %finalDir%
+
+	rem includeディレクトリコピー
+	%fastcopyExe% %fastcopyMode% /cmd=diff "install\include" /to="%finalDir%\"
+
+	rem binディレクトリコピー
+	%fastcopyExe% %fastcopyMode% /cmd=diff /include="jpeg*.dll" /exclude="*\" "install\bin" /to="%finalDir%\bin\%platformName%"
+
+	rem libディレクトリコピー
+	%fastcopyExe% %fastcopyMode% /cmd=diff /include="jpeg*.lib" /exclude="*\" "install\lib" /to="%finalDir%\lib\%platformName%"
+
+	rem バージョン番号ファイル追加
+	type nul > %finalDir%\libJpeg-turbo_%libJpeg-turboVersion%
+)
+
+exit /b
+
+goto :EOF
+
+:ErrorCheck
+if not %errorlevel% == 0 (
+	echo ERROR
+	cd /d "%currentPath%"
+	exit 1
+) else (
+	exit /b
+)
+
+goto :EOF
 
 endlocal
