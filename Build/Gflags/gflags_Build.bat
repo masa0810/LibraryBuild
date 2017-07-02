@@ -130,7 +130,7 @@ if /%buildType%==/install (
 	%fastcopyExe% %fastcopyMode% /cmd=diff /include="*gflags*.lib" "lib" /to="%finalDir%\lib\%platformName%"
 
 	rem バージョン番号ファイル追加
-	type nul > %finalDir%\%gflagsVersion%
+	type nul > %finalDir%\gflags_%gflagsVersion%
 )
 
 exit /b
