@@ -67,6 +67,7 @@ rem Copyバッチのコピー
 
 rem バージョン番号ファイル追加
 for /f "tokens=3" %%l in ( 'type "%cudaPath%\version.txt"' ) do set cudaVersion=%%l
-type nul > %finalDir%\%cudaVersion%_%cudnnVersion%
+type nul > %finalDir%\CUDA_%cudaVersion%
+type nul > %finalDir%\cuDNN_%cudnnVersion%
 
 endlocal
