@@ -176,7 +176,7 @@ if /%buildType%==/install (
 	)
 
 	rem バージョン番号ファイル追加
-	type nul > %finalDir%\%boostVersion%
+	type nul > %finalDir%\Boost_%boostVersion%
 )
 
 goto :EOF
