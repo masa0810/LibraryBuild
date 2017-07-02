@@ -52,6 +52,6 @@ rem Eigenディレクトリコピー
 %fastcopyExe% %fastcopyMode% /cmd=diff /exclude="*.txt" "%eigenPath%\unsupported\Eigen" /to="%finalDir%\include\unsupported\"
 
 rem バージョン番号ファイル追加
-type nul > %finalDir%\%eigenVersion%
+type nul > %finalDir%\Eigen_%eigenVersion%
 
 endlocal
