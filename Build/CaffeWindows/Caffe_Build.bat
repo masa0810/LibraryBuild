@@ -142,7 +142,7 @@ if /%buildType%==/install (
 	)
 
 	rem バージョン番号ファイル追加
-	type nul > %finalDir%\%caffeVersion%
+	type nul > %finalDir%\Caffe_%caffeVersion%
 )
 
 exit /b
