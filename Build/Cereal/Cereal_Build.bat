@@ -49,6 +49,6 @@ rem Cerealディレクトリコピー
 %fastcopyExe% %fastcopyMode% /cmd=diff /exclude="*.txt" "%cerealPath%\include" /to="%finalDir%\"
 
 rem バージョン番号ファイル追加
-type nul > %finalDir%\%cerealVersion%
+type nul > %finalDir%\Cereal_%cerealVersion%
 
 endlocal
