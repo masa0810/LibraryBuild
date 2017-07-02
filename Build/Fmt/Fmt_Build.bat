@@ -52,6 +52,6 @@ rem セットヘッダのコピー
 %fastcopyExe% %fastcopyMode% /cmd=diff "%batchPath%\files\fmtset.h" /to="%finalDir%\include\"
 
 rem バージョン番号ファイル追加
-type nul > %finalDir%\%fmtVersion%
+type nul > %finalDir%\Fmt_%fmtVersion%
 
 endlocal
