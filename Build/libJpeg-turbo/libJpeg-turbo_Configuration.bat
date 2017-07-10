@@ -5,7 +5,7 @@ rem CMake
 set cmakePath=cmake-3.7.2-win64-x64\bin\cmake.exe
 
 rem nasm
-set nasmPath=nasm\nasm.exe
+set nasmPath=nasm-2.13.01\nasm.exe
 
 rem ninja
 set ninjaPath=ninja-1.7.2\ninja.exe
