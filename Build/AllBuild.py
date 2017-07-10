@@ -62,11 +62,12 @@ def build_run(build_name, flag_avx=False):
 
     switcher = {
         "boost": (os.path.join(SCRIPT_PATH, r"Boost\Boost_Build.bat"), flag_avx),
-        "caffe": (os.path.join(SCRIPT_PATH, r"CaffeWindows\Caffe_Build.bat"), False),
+        "caffe": (os.path.join(SCRIPT_PATH, r"Caffe\Caffe_Build.bat"), False),
         "gflags": (os.path.join(SCRIPT_PATH, r"Gflags\gflags_Build.bat"), False),
         "glog": (os.path.join(SCRIPT_PATH, r"Glog\glog_Build.bat"), False),
         "hdf5": (os.path.join(SCRIPT_PATH, r"HDF5\HDF5_Build.bat"), False),
         "leveldb": (os.path.join(SCRIPT_PATH, r"LevelDB\LevelDB_Build.bat"), False),
+        "libcapture": (os.path.join(SCRIPT_PATH, r"libCapture\libCapture_Build.bat"), False),
         "libjpeg-turbo":
             (os.path.join(SCRIPT_PATH, r"libJpeg-turbo\libJpeg-turbo_Build.bat"), False),
         "lmdb": (os.path.join(SCRIPT_PATH, r"Lmdb\lmdb_Build.bat"), False),
@@ -111,6 +112,7 @@ if __name__ == "__main__":
                      "lmdb",
                      "Snappy",
                      "LevelDB",
-                     "Caffe"]:
+                     "Caffe",
+                     "libCapture"]:
             if not build_run(name):
                 break
