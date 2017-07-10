@@ -40,7 +40,8 @@ def build_run(build_name):
         "cuda": os.path.join(SCRIPT_PATH, r"CUDA\CUDA_Build.bat"),
         "eigen": os.path.join(SCRIPT_PATH, r"Eigen\Eigen_Build.bat"),
         "fmt": os.path.join(SCRIPT_PATH, r"Fmt\Fmt_Build.bat"),
-        "openblas": os.path.join(SCRIPT_PATH, r"OpenBLAS\OpenBlas_Build.bat")
+        "openblas": os.path.join(SCRIPT_PATH, r"OpenBLAS\OpenBlas_Build.bat"),
+        "pybind11": os.path.join(SCRIPT_PATH, r"PyBind11\PyBind11_Build.bat")
     }
 
     batch_path = switcher.get(build_name.lower())
@@ -67,5 +68,6 @@ if __name__ == "__main__":
                      "CUDA",
                      "Eigen",
                      "Fmt",
-                     "OpenBLAS"]:
+                     "OpenBLAS",
+                     "PyBind11"]:
             build_run(name)
