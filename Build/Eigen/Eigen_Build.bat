@@ -46,10 +46,10 @@ if exist "%finalDir%" (
 )
 
 rem Eigenディレクトリコピー
-%fastcopyExe% %fastcopyMode% /cmd=diff /exclude="*.txt" "%eigenPath%\Eigen" /to="%finalDir%\include\"
+%fastcopyExe% %fastcopyMode% /cmd=diff /exclude="*.txt;*.md" "%eigenPath%\Eigen" /to="%finalDir%\include\"
 
 rem Eigenディレクトリコピー
-%fastcopyExe% %fastcopyMode% /cmd=diff /exclude="*.txt" "%eigenPath%\unsupported\Eigen" /to="%finalDir%\include\unsupported\"
+%fastcopyExe% %fastcopyMode% /cmd=diff /exclude="*.txt;*.md" "%eigenPath%\unsupported\Eigen" /to="%finalDir%\include\unsupported\"
 
 rem バージョン番号ファイル追加
 type nul > %finalDir%\Eigen_%eigenVersion%
