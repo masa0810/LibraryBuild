@@ -75,25 +75,33 @@ if /%Platform%==/ (
 
 rem Visual Studioバージョン切り替え
 if /%VisualStudioVersion%==/11.0 (
+	set vsVersion=vs2012
 	set vcVersion=110
 	set toolsetName=msvc-11.0
 ) else if /%VisualStudioVersion%==/12.0 (
+	set vsVersion=vs2013
 	set vcVersion=120
 	set toolsetName=msvc-12.0
 ) else if /%VisualStudioVersion%==/14.0 (
+	set vsVersion=vs2015
 	set vcVersion=140
 	set toolsetName=msvc-14.0
 ) else if /%VisualStudioVersion%==/15.0 (
+	set vsVersion=vs2017
 	set vcVersion=141
 	set toolsetName=msvc-14.1
 ) else (
+	set vsVersion=vs2010
 	set vcVersion=100
 	set toolsetName=msvc-10.0
 )
 
 rem ビルドディレクトリ
+set buildDir=%batchPath%Build_%vsVersion%_%platformName%
+
+rem インストールディレクトリ
 set finalDir=%sourceDir%\Final\v%vcVersion%\Boost
-rem ビルドディレクトリ表示
+rem インストールディレクトリ表示
 echo install : %finalDir%
 
 rem Boostディレクトリに移動
@@ -129,6 +137,7 @@ debug-symbols=on ^
 -j%numOfParallel% ^
 -sBZIP2_SOURCE="%bzippath%" ^
 -sZLIB_SOURCE="%zlibpath%" ^
+--build-dir="%buildDir%"
 --prefix="%finalDir%" ^
 --stagedir="%finalDir%" ^
 --build-type=complete ^
