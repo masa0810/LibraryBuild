@@ -137,7 +137,7 @@ debug-symbols=on ^
 -j%numOfParallel% ^
 -sBZIP2_SOURCE="%bzippath%" ^
 -sZLIB_SOURCE="%zlibpath%" ^
---build-dir="%buildDir%"
+--build-dir="%buildDir%" ^
 --prefix="%finalDir%" ^
 --stagedir="%finalDir%" ^
 --build-type=complete ^
@@ -180,7 +180,7 @@ if /%buildType%==/install (
 	)
 
 	rem pdbコピー
-	for /f "delims=" %%f in ( 'dir "%boostPath%" /a-D /B /S ^| findstr "boost[^\\]*%vcVersion%[^\\]*pdb$"' ) do (
+	for /f "delims=" %%f in ( 'dir "%buildDir%" /a-D /B /S ^| findstr "boost[^\\]*%vcVersion%[^\\]*pdb$"' ) do (
 		copy "%%f" "%finalDir%\bin\%platformName%"
 	)
 
