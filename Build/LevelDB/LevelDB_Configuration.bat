@@ -19,14 +19,15 @@ if /%1==/shared (
 	set flagStatic=OFF
     set linkType=Shared
 	set boostPrefix=
-	set boostPreProcesser=/DBOOST_ALL_DYN_LINK
+	set boostPreProcesserOrig="/DBOOST_ALL_DYN_LINK"
 ) else (
 	set flagShared=OFF
 	set flagStatic=ON
     set linkType=Static
 	set boostPrefix=lib
-	set boostPreProcesser=
+	set boostPreProcesserOrig=""
 )
+set boostPreProcesse=%boostPreProcesserOrig:"=%
 
 rem Release/Debug切り替え
 if /%2==/debug (
