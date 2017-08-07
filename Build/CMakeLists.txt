@@ -76,3 +76,8 @@ endif()
 if(EXISTS "${LMDB_SRC}")
     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/LMDB ${CMAKE_CURRENT_BINARY_DIR}/LMDB)
 endif()
+
+# Snappy
+if(EXISTS "${SNAPPY_SRC}")
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Snappy ${CMAKE_CURRENT_BINARY_DIR}/Snappy)
+endif()
