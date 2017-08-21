@@ -234,3 +234,16 @@ $ cmake /usr/local/src/opencv-3.3.0 -G Ninja -DHALIDE_ROOT_DIR=/usr/local -DHali
 $ ninja -j6
 $ sudo ninja install
 ```
+
+### Caffe
+関連パッケージインストール
+```bash
+$ sudo apt install libleveldb-dev libsnappy-dev libhdf5-serial-dev libgflags-dev libgoogle-glog-dev liblmdb-dev
+```
+
+ビルド＆インストール
+```bash
+$ cmake /usr/local/src/caffe-1.0 -G "Ninja" -DBUILD_docs=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBLAS=Open -Dpython_version=3
+$ ninja -6
+$ sudo ninja install
+```
