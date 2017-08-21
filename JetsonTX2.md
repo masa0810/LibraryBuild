@@ -11,10 +11,7 @@
 
 自前でビルドしたライブラリは`/usr/local`以下に追加していく。
 
-パス追加
-```
-$ vi .bashrc
-```
+`~/.bashrc`を編集してパス追加
 ```
 export LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64
 ↓
@@ -212,7 +209,7 @@ $ cmake /usr/local/src/opencv-3.3.0 -G Ninja -DHALIDE_ROOT_DIR=/usr/local -DHali
 ```
 
 `/usr/local/cuda-8.0/targets/aarch64-linux/include/cuda_gl_interop.h`の編集
-```
+```cpp
 #if defined(__arm__) || defined(__aarch64__)
 #ifndef GL_VERSION
 #error Please include the appropriate gl headers before including cuda_gl_interop.h
