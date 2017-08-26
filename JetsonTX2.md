@@ -123,7 +123,7 @@ $ sudo apt install qt5-default
 
 bootstrapしてmakeしてinstall
 ```bash
-$ ./bootstrap --parallel=6 --qt-gui
+$ ./bootstrap --parallel=6 --qt-gui --system-libs --enable-ccache
 $ make
 $ sudo make install
 ```
@@ -206,7 +206,7 @@ $ sudo apt install ibunicap2-dev
 
 cmake実行
 ```bash
-$ cmake /usr/local/src/opencv-3.3.0 -G Ninja -DHALIDE_ROOT_DIR=/usr/local -DHalide_DIR=/usr/local -DPROTOBUF_UPDATE_FILES=ON -DBUILD_DOCS=OFF -DBUILD_PACKAGE=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_PROTOBUF=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_opencv_apps=OFF -DBUILD_opencv_ts=OFF -DCMAKE_BUILD_TYPE=Release -DCUDA_FAST_MATH=ON -DENABLE_CXX11=ON -DOPENVX_ROOT=/usr -DOPENVX_openvx_LIBRARY=/usr/lib/libvisionworks.so -DOPENVX_vxu_LIBRARY=/usr/lib/libvisionworks.so -DOPENCV_DOWNLOAD_PATH=/usr/local/src/opencv_3rdparty_cache -DOPENCV_ENABLE_NONFREE=ON -DOPENCV_EXTRA_MODULES_PATH=/usr/local/src/opencv_contrib-3.3.0/modules -DWITH_CLP=ON -DWITH_CUBLAS=ON -DWITH_GDAL=ON -DWITH_GDCM=ON -DWITH_HALIDE=ON -DWITH_LIBV4L=ON -DWITH_MATLAB=OFF -DWITH_OPENCL=OFF -DWITH_OPENCLAMDBLAS=OFF -DWITH_OPENCLAMDFFT=OFF -DWITH_OPENGL=ON -DWITH_OPENVX=ON -DWITH_PTHREADS_PF=OFF -DWITH_QT=ON -DWITH_TBB=ON -DWITH_UNICAP=ON -DWITH_VA=ON -DWITH_XINE=ON
+$ cmake /usr/local/src/opencv-3.3.0 -G Ninja -DHALIDE_ROOT_DIR=/usr/local -DHalide_DIR=/usr/local -DPROTOBUF_UPDATE_FILES=ON -DBUILD_DOCS=OFF -DBUILD_PACKAGE=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_PROTOBUF=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_opencv_apps=OFF -DBUILD_opencv_ts=OFF -DCMAKE_BUILD_TYPE=Release -DCUDA_FAST_MATH=ON -DENABLE_CXX11=ON -DENABLE_FAST_MATH=ON -DOPENVX_ROOT=/usr -DOPENVX_openvx_LIBRARY=/usr/lib/libvisionworks.so -DOPENVX_vxu_LIBRARY=/usr/lib/libvisionworks.so -DOPENCV_DOWNLOAD_PATH=/usr/local/src/opencv_3rdparty_cache -DOPENCV_ENABLE_NONFREE=ON -DOPENCV_EXTRA_MODULES_PATH=/usr/local/src/opencv_contrib-3.3.0/modules -DWITH_CLP=ON -DWITH_CUBLAS=ON -DWITH_GDAL=ON -DWITH_GDCM=ON -DWITH_HALIDE=ON -DWITH_LIBV4L=ON -DWITH_MATLAB=OFF -DWITH_OPENCL=OFF -DWITH_OPENCLAMDBLAS=OFF -DWITH_OPENCLAMDFFT=OFF -DWITH_OPENGL=ON -DWITH_OPENVX=ON -DWITH_PTHREADS_PF=OFF -DWITH_QT=ON -DWITH_TBB=ON -DWITH_UNICAP=ON -DWITH_VA=ON -DWITH_XINE=ON
 ```
 
 `/usr/local/cuda-8.0/targets/aarch64-linux/include/cuda_gl_interop.h`の編集
