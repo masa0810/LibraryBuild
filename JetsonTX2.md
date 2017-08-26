@@ -146,7 +146,7 @@ $ buildninja -j6
 ### Protobuf
 aptのprotobufはバージョンが古いので、自前でビルド
 ```bash
-$ cmake /usr/local/src/protobuf-3.4.0 -G Ninja -DCMAKE_BUILD_TYPE=Release -Dprotobuf_BUILD_SHARED_LIBS=ON -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_MSVC_STATIC_RUNTIME=OFF
+$ cmake /usr/local/src/protobuf-3.4.0/cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -Dprotobuf_BUILD_SHARED_LIBS=ON -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_MSVC_STATIC_RUNTIME=OFF
 $ ninja -j6
 $ sudo ninja install
 ```
