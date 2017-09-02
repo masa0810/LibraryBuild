@@ -264,7 +264,7 @@ TBBのコンポーネントは、 [find_package](https://cmake.org/cmake/help/la
 **TBBConfig**は [インポートされたターゲット](https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#imported-targets)を作成します。
 `TBB::<component>`(`TBB::tbb`,`TBB::tbbmalloc`)のような形式の共有ライブラリを作成します。
 
-TBB構成時に設定される変数：
+#### TBB構成時に設定される変数：
 | 変数                     | 説明                                   |
 |:------------------------|:---------------------------------------|
 | `TBB_FOUND`             | TBBライブラリが見つかりました                 |
