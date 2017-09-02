@@ -286,14 +286,14 @@ tbb_get(TBB_ROOT <variable> [RELEASE_TAG <release_tag>|LATEST] [SAVE_TO <path>] 
 
 **TBBConfig**がない場合、GitHubからTBBをダウンロードし、ダウンロードしたバイナリパッケージ用の**TBBConfig**を作成します。
 
-| パラメータ                            | 説明 |
-|:-----------------------------------|:-----|
-| `TBB_ROOT <variable>`              | TBBのルートを保存する変数、`<variable>-NOTFOUND`は`tbb_get`が失敗した場合に備えて提供されます |
-| `RELEASE_TAG <release_tag>|LATEST` | ダウンロードするTBBリリースタグ（たとえば`2017_U6`）<br>`LATEST`がデフォルトで使用されます |
-| `SAVE_TO <path>`                   | ダウンロードされたTBBをアンパックする場所へのパス<br>`${CMAKE_CURRENT_BINARY_DIR}/tbb_downloaded`がデフォルトで使用されます |
-| `SYSTEM_NAME Linux|Windows|Darwin` | バイナリパッケージをダウンロードするためのオペレーティングシステム名<br>[`CMAKE_SYSTEM_NAME`](https://cmake.org/cmake/help/latest/variable/CMAKE_SYSTEM_NAME.html)の値はデフォルトで使用されます |
-| `CONFIG_DIR <variable>`            | **TBBConfig.cmake**と**TBBConfigVersion.cmake**の場所を保存する変数<br>`SOURCE_CODE`が指定されている場合は無視されます |
-| `SOURCE_CODE`                      | TBBソースコードを取得するフラグ（バイナリパッケージではなく） |
+| パラメータ                                  | 説明 |
+|:-----------------------------------------|:-----|
+| `TBB_ROOT <variable>`                    | TBBのルートを保存する変数、`<variable>-NOTFOUND`は`tbb_get`が失敗した場合に備えて提供されます |
+| `RELEASE_TAG <release_tag> or LATEST`    | ダウンロードするTBBリリースタグ（たとえば`2017_U6`）<br>`LATEST`がデフォルトで使用されます |
+| `SAVE_TO <path>`                         | ダウンロードされたTBBをアンパックする場所へのパス<br>`${CMAKE_CURRENT_BINARY_DIR}/tbb_downloaded`がデフォルトで使用されます |
+| `SYSTEM_NAME Linux or Windows or Darwin` | バイナリパッケージをダウンロードするためのオペレーティングシステム名<br>[`CMAKE_SYSTEM_NAME`](https://cmake.org/cmake/help/latest/variable/CMAKE_SYSTEM_NAME.html)の値はデフォルトで使用されます |
+| `CONFIG_DIR <variable>`                  | **TBBConfig.cmake**と**TBBConfigVersion.cmake**の場所を保存する変数<br>`SOURCE_CODE`が指定されている場合は無視されます |
+| `SOURCE_CODE`                            | TBBソースコードを取得するフラグ（バイナリパッケージではなく） |
 
 
 ### TBBMakeConfig
@@ -308,11 +308,11 @@ tbb_make_config(TBB_ROOT <path> CONFIG_DIR <variable> [SYSTEM_NAME Linux|Windows
 ```
 インテル®TBBバイナリー・パッケージ用のCMake構成ファイル（**TBBConfig.cmake**および**TBBConfigVersion.cmake**）を作成します。
 
-| パラメータ                            | 説明 |
-|:-----------------------------------|:-----|
-| `TBB_ROOT <variable>`              | TBBルートへのパス |
-| `CONFIG_DIR <variable>`            | 作成された設定ファイルの場所を格納する変数 |
-| `SYSTEM_NAME Linux|Windows|Darwin` | バイナリのTBBパッケージのオペレーティング・システム名、デフォルトで[`CMAKE_SYSTEM_NAME`](https://cmake.org/cmake/help/latest/variable/CMAKE_SYSTEM_NAME.html)の値が使用されます |
+| パラメータ                                  | 説明 |
+|:-----------------------------------------|:-----|
+| `TBB_ROOT <variable>`                    | TBBルートへのパス |
+| `CONFIG_DIR <variable>`                  | 作成された設定ファイルの場所を格納する変数 |
+| `SYSTEM_NAME Linux or Windows or Darwin` | バイナリのTBBパッケージのオペレーティング・システム名、デフォルトで[`CMAKE_SYSTEM_NAME`](https://cmake.org/cmake/help/latest/variable/CMAKE_SYSTEM_NAME.html)の値が使用されます |
 
 
 ### TBBBuild
