@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.8.2)
 
 # プロジェクト名などの設定
-project(JetsonTest VERSION 0.0.1 LANGUAGES C CXX)
+project(LinuxBuildTest VERSION 0.0.1 LANGUAGES C CXX)
 
 # C++14の使用
 set(CMAKE_CXX_STANDARD 14)
@@ -11,11 +11,13 @@ set(CMAKE_CXX_STANDARD 14)
 add_definitions(-include ${PROJECT_SOURCE_DIR}/stdafx.h)
 
 # Boost
-set(BOOST_ROOT /usr/local)
-find_package(Boost REQUIRED COMPONENTS program_options)
+set(BOOST_ROOT /usr/local CACHE PATH "CMake Directory")
+find_package(Boost REQUIRED)
 if(Boost_FOUND)
     # autolink抑制
-    #add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_ALL_DYN_LINK -DBOOST_LOG_DYN_LINK)
+    # add_definitions(-DBOOST_ALL_NO_LIB)
+    add_definitions(-DBOOST_ALL_DYN_LINK)
+    # add_definitions(-DBOOST_LOG_DYN_LINK)
     message(STATUS "Found Boost ${Boost_VERSION}")
     message(STATUS "Include Dir : ${Boost_INCLUDE_DIRS}")
     message(STATUS "Library Dir : ${Boost_LIBRARY_DIRS}")
@@ -23,43 +25,45 @@ if(Boost_FOUND)
 endif()
 
 # Cereal
-set(Cereal_Dir /usr/local/share/cmake/cereal)
+set(Cereal_DIR /usr/local/share/cmake/cereal CACHE PATH "CMake Directory")
 find_package(Cereal REQUIRED)
 if(Cereal_FOUND)
     message(STATUS "Found Cereal")
 endif()
 
 # Eigen3
-set(Eigen3_Dir /usr/local/share/eigen3/cmake)
+set(Eigen3_DIR /usr/local/share/eigen3/cmake CACHE PATH "CMake Directory")
 find_package(Eigen3 REQUIRED)
 if(Eigen3_FOUND)
     message(STATUS "Found Eigen3 ${Eigen3_VERSION}")
 endif()
 
 # fmt
-set(fmt_Dir /usr/local/lib/cmake/fmt)
+set(fmt_DIR /usr/local/lib/cmake/fmt CACHE PATH "CMake Directory")
 find_package(fmt REQUIRED)
 if(fmt_FOUND)
     message(STATUS "Found fmt ${fmt_VERSION}")
 endif()
 
 # OpenCV
-set(OpenCV_DIR /usr/local/share/OpenCV)
+set(OpenCV_DIR /usr/local/share/OpenCV CACHE PATH "CMake Directory")
 find_package(OpenCV REQUIRED)
 if(OpenCV_FOUND)
     message(STATUS "Found OpenCV ${OpenCV_VERSION}")
 endif()
 
 # PyBind11
-set(pybind11_DIR /usr/local/share/cmake/pybind11)
+set(PYBIND11_PYTHON_VERSION "3.5" CACHE STRING "Python Version")
+set(PYBIND11_CPP_STANDARD "-std=c++14" CACHE STRING "C++ Standerd")
+set(pybind11_DIR /usr/local/share/cmake/pybind11 CACHE PATH "CMake Directory")
 find_package(pybind11 REQUIRED)
 if(pybind11_FOUND)
     message(STATUS "Found PyBind11 ${pybind11_VERSION}")
 endif()
 
 # TBB
-set(TBB_ROOT /usr/local)
-find_package(TBB REQUIRED)
+set(TBB_DIR /usr/local/share/cmake/tbb CACHE PATH "CMake Directory")
+find_package(TBB REQUIRED tbb_preview tbbmalloc)
 if(TBB_FOUND)
     message(STATUS "Found TBB ${TBB_VERSION}")
 endif()
@@ -73,4 +77,7 @@ add_executable(${PROJECT_NAME} ${headers} ${sources})
 target_link_libraries(${PROJECT_NAME}
     ${Boost_LIBRARIES}
     opencv_core
-    opencv_imgcodecs)
+    opencv_imgcodecs
+    Halide
+    pthread
+    dl)
