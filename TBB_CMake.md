@@ -330,4 +330,4 @@ tbb_build(TBB_ROOT <tbb_root> CONFIG_DIR <variable> [MAKE_ARGS <custom_make_argu
 |:------------------------------------|:-|
 | `TBB_ROOT <variable>`               | TBBルートへのパス |
 | `CONFIG_DIR <variable>`             | `tbb_build`が失敗した場合に備えて、作成された設定ファイルの場所を格納する変数`<variable>-NOTFOUND`が提供されます |
-| `MAKE_ARGS <custom_make_arguments>` | `make`ツールに渡されるカスタム引数<br> 以下の引数は`<custom_make_arguments>`で再定義されていなければ、自動的に検出された値とともに`make`ツールに渡されます：<br> - `compiler=<compiler>`<br> - `tbb_build_dir=<tbb_build_dir>`<br> - `tbb_build_prefix=<tbb_build_prefix>`<br> - `j<n>` |
+| `MAKE_ARGS <custom_make_arguments>` | `make`ツールに渡されるカスタム引数<br> 以下の引数は`<custom_make_arguments>`で再定義されていなければ、自動的に検出された値とともに`make`ツールに渡されます：<br> - `compiler=<compiler>`<br> - `tbb_build_dir=<tbb_build_dir>`<br> - `tbb_build_prefix=<tbb_build_prefix>`<br> - `-j<n>` |
