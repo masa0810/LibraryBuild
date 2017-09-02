@@ -115,7 +115,7 @@ find_package（TBB <options>）
 
 ### 統合のためのCMakeコード：
 ```cmake
-include（<path-to-tbb-cmake-modules> /TBBBuild.cmake）
+include（<path-to-tbb-cmake-modules>/TBBBuild.cmake）
 tbb_build（TBB_ROOT <tbb_root> CONFIG_DIR TBB_DIR）
 find_package（TBB <options>）
 ```
@@ -127,10 +127,10 @@ find_package（TBB <options>）
 
 ### 統合のためのCMakeコード：
 ```cmake
-include（<path-to-tbb-cmake-modules> /TBBGet.cmake）
-include（<path-to-tbb-cmake-modules> /TBBBuild.cmake）
+include（<path-to-tbb-cmake-modules>/TBBGet.cmake）
+include（<path-to-tbb-cmake-modules>/TBBBuild.cmake）
 tbb_get（TBB_ROOT tbb_root SOURCE_CODE）
-tbb_build（TBB_ROOT $ {tbb_root} CONFIG_DIR TBB_DIR）
+tbb_build（TBB_ROOT ${tbb_root} CONFIG_DIR TBB_DIR）
 find_package（TBB <options>）
 ```
 
