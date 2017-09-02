@@ -331,3 +331,44 @@ tbb_build(TBB_ROOT <tbb_root> CONFIG_DIR <variable> [MAKE_ARGS <custom_make_argu
 | `TBB_ROOT <variable>`               | TBBルートへのパス |
 | `CONFIG_DIR <variable>`             | `tbb_build`が失敗した場合に備えて、作成された設定ファイルの場所を格納する変数`<variable>-NOTFOUND`が提供されます |
 | `MAKE_ARGS <custom_make_arguments>` | `make`ツールに渡されるカスタム引数<br> 以下の引数は`<custom_make_arguments>`で再定義されていなければ、自動的に検出された値とともに`make`ツールに渡されます：<br> - `compiler=<compiler>`<br> - `tbb_build_dir=<tbb_build_dir>`<br> - `tbb_build_prefix=<tbb_build_prefix>`<br> - `-j<n>` |
+
+
+## CMakeLists.txeサンプル
+```cmake
+cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
+
+project(TBB CXX)
+
+include(ProcessorCount)
+ProcessorCount(NUMBER_OF_PROCESSORS)
+
+set(NUM_OF_BUILD ${NUMBER_OF_PROCESSORS} CACHE STRING "Number of build")
+message(STATUS "${NUM_OF_BUILD}")
+
+set(TBB_SOURCE_DIR /usr/local/src/tbb-2017_U7 CACHE PATH "TBB source directory")
+message(STATUS "${TBB_SOURCE_DIR}")
+
+set(TBB_BUILD_CMAKE ${TBB_SOURCE_DIR}/cmake/TBBBuild.cmake CACHE PATH "TBB build cmake file")
+message(STATUS "${TBB_BUILD_CMAKE}")
+
+set(TBB_MAKE_CMAKE ${TBB_SOURCE_DIR}/cmake/TBBMakeConfig.cmake CACHE PATH "TBB make cmake file")
+message(STATUS "${TBB_MAKE_CMAKE}")
+
+set(TBB_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "TBB build dir")
+message(STATUS "${TBB_BUILD_DIR}")
+
+set(TBB_INSTALL_PREFIX install CACHE PATH "TBB install dir")
+message(STATUS "${TBB_INSTALL_PREFIX}")
+
+include(${TBB_BUILD_CMAKE})
+include(${TBB_MAKE_CMAKE})
+
+set(TBB_DIR "")
+#message(STATUS "tbb_build(TBB_ROOT ${TBB_SOURCE_DIR} CONFIG_DIR TBB_DIR MAKE_ARGS tbb_build_dir=${TBB_BUILD_DIR} tbb_build_prefix=${TBB_INSTALL_PREFIX} tbb_cpf=1 stdver=c++14 -j${NUM_OF_BUILD})")
+#tbb_build(TBB_ROOT ${TBB_SOURCE_DIR} CONFIG_DIR TBB_DIR MAKE_ARGS tbb_build_dir=${TBB_BUILD_DIR} tbb_build_prefix=${TBB_INSTALL_PREFIX} tbb_cpf=1 stdver=c++14 -j${NUM_OF_BUILD})
+tbb_make_config(TBB_ROOT ${TBB_SOURCE_DIR} CONFIG_DIR ${TBB_BUILD_DIR}/CMake CONFIG_FOR_SOURCE TBB_RELEASE_DIR /usr/local/lib)
+
+message(STATUS "${TBB_DIR}")
+
+# find_package(TBB REQUIRED tbb_preview tbbmalloc)
+```
