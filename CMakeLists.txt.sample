@@ -15,13 +15,12 @@ set(BOOST_ROOT /usr/local CACHE PATH "CMake Directory")
 find_package(Boost REQUIRED)
 if(Boost_FOUND)
     # autolink抑制
-    # add_definitions(-DBOOST_ALL_NO_LIB)
+    add_definitions(-DBOOST_ALL_NO_LIB)
     add_definitions(-DBOOST_ALL_DYN_LINK)
     # add_definitions(-DBOOST_LOG_DYN_LINK)
     message(STATUS "Found Boost ${Boost_VERSION}")
     message(STATUS "Include Dir : ${Boost_INCLUDE_DIRS}")
     message(STATUS "Library Dir : ${Boost_LIBRARY_DIRS}")
-    message(STATUS "Librarys : ${Boost_LIBRARIES}")
 endif()
 
 # Cereal
@@ -63,21 +62,41 @@ endif()
 
 # TBB
 set(TBB_DIR /usr/local/share/cmake/tbb CACHE PATH "CMake Directory")
-find_package(TBB REQUIRED tbb_preview tbbmalloc)
+find_package(TBB REQUIRED)
 if(TBB_FOUND)
     message(STATUS "Found TBB ${TBB_VERSION}")
 endif()
 
+# インクルードパス追加
+include_directories(
+    ${PROJECT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/..)
+
+# ライブラリパス追加
+link_directories(
+    /usr/local/lib
+    ${PROJECT_SOURCE_DIR}/../Common/${CMAKE_BUILD_TYPE})
+
 # ソースコード追加
 file(GLOB sources RELATIVE ${PROJECT_SOURCE_DIR} *.cpp)
-file(GLOB headers RELATIVE ${PROJECT_SOURCE_DIR} *.h)
-add_executable(${PROJECT_NAME} ${headers} ${sources})
+add_executable(${PROJECT_NAME} ${sources})
+# file(GLOB headers RELATIVE ${PROJECT_SOURCE_DIR} *.h)
+# add_executable(${PROJECT_NAME} ${headers} ${sources})
 
 # ライブラリへのリンク
 target_link_libraries(${PROJECT_NAME}
-    ${Boost_LIBRARIES}
+    boost_log
+    boost_thread
+    boost_filesystem
+    boost_system
+    boost_program_options
+    fmt
+    tbb_preview
+    tbbmalloc
     opencv_core
     opencv_imgcodecs
     Halide
     pthread
-    dl)
+    dl
+    stdc++fs
+    Common)
