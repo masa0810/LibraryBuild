@@ -1,60 +1,69 @@
 @echo off
+REM ファイルコピー(引数1:ビルドタイプ、引数2:アーキテクチャ、引数3:出力ディレクトリ)
+
 setlocal ENABLEDELAYEDEXPANSION
 
-for %%f in (cudnn64_6.dll cublas64_80.dll curand64_80.dll) do (
-	call :FileCopyCUDA %1 %2 %%f
+set version=36
+set debugSuffix=d
+
+set libDir=%~dp0bin\
+set platform=%~2
+
+set srcDir="%libDir%%platform%\"
+
+for %%f in ( caffe ) do (
+	call :CheckConfig %1 %3 %srcDir% %%f dll %debugSuffix%
 )
-call :FileCopyPython %1 %2 python35.dll
+call :FileCopy %3 %srcDir% python%version%.dll
+
+set cudaVer=92
+set cudnnVer=7
+set cudaDir="%~dp0..\..\CUDA\bin\"
+
+for %%f in ( cudnn64_%cudnnVer%.dll cublas64_%cudaVer%.dll curand64_%cudaVer%.dll ) do (
+	call :FileCopy %3 %cudaDir% %%f
+)
+
 goto :EOF
 
-rem ファイルコピー
-:FileCopyCUDA
+REM ビルドタイプ判定(引数1:ビルドタイプ、引数2:出力ディレクトリ、引数3:コピー元ディレクトリ、引数4:ファイル名、引数5:拡張子、引数6:サフィックス文字列)
+:CheckConfig
 
-if /%1==/x64 (
-	set path=%~dp0..\..\CUDA\bin\
+if /%1==/Debug (
+	set suffix=%6
 ) else (
-	echo "Win32非対応"
-	goto :EOF
+	set suffix=
 )
-call :FileCopy %path% %2 %3
+call :FileCopy %2 %3 %4%suffix%.%5
 
 exit /b
+goto :EOF
 
-rem ファイルコピー
-:FileCopyPython
-
-if /%1==/x64 (
-	set path=%~dp0bin\x64\
-) else (
-	echo "Win32非対応"
-	goto :EOF
-)
-call :FileCopy %path% %2 %3
-
-exit /b
-
+REM ファイルコピー(引数1:出力ディレクトリ、引数2:コピー元ディレクトリ、引数3:ファイル名)
 :FileCopy
 
-set path=%1
+set dstPath=%~f1
+set srcPath=%~f2
 set filename=%3
 
-set filename1=%~f2%filename%
-set filename2=%path%%filename%
+set filename1=%srcPath%%filename%
+set filename2=%dstPath%%filename%
 
-if exist "%filename2%" (
-	if not exist "%filename1%" (
-		copy "%filename2%" "%~2" /y
-		echo %filename2% Copy
+if exist "%filename1%" (
+	if not exist "%filename2%" (
+		copy "%filename1%" "%dstPath%" /y
+		echo %filename1% Copy
 	) else (
-		for %%a in ( "%filename1%" ) do set oldtime=%%~ta
-		for %%b in ( "%filename2%" ) do set newtime=%%~tb
+		for %%a in ( "%filename2%" ) do set oldtime=%%~ta
+		for %%b in ( "%filename1%" ) do set newtime=%%~tb
 		if "!newtime!" GTR "!oldtime!" (
-			copy "%filename2%" "%~2" /y
-			echo %filename2% Update
+			copy "%filename1%" "%dstPath%" /y
+			echo %filename1% Update
 		)
 	)
 )
 
 exit /b
+goto :EOF
 
 endlocal
