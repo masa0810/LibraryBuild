@@ -1,22 +1,25 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 
-rem FastCopy
-set fastcopyPath=FastCopy330_x64\FastCopy.exe
+REM FastCopy
+set fastcopyPath=FastCopy341_x64\FastCopy.exe
 
-rem FastCopyモード
+REM FastCopyモード
 set fastcopyMode=/force_close
 
-rem ninja
-set ninjaPath=ninja-1.7.2\ninja.exe
+REM ninja
+set ninjaPath=Ninja\ninja.exe
 
-rem バージョン設定
-set openCvVersion=3.2.0
+REM ビルドバッファ
+set buildBuf=C:\Library\Temp
 
-rem 並列ビルド数
+REM バージョン設定
+set openCvVersion=3.4.1
+
+REM 並列ビルド数
 set numOfParallel=%NUMBER_OF_PROCESSORS%
 
-rem 引数解析
+REM 引数解析
 if /%1==/install (
 	set buildType=install
 	if /%2==/avx (
@@ -36,46 +39,46 @@ if /%1==/install (
 	set flagAvx=
 )
 
-rem ビルド条件表示
+REM ビルド条件表示
 echo build type : %buildType%
 
-rem 現在のパスの保持
+REM 現在のパスの保持
 for /f "delims=" %%f in ( 'cd' ) do set currentPath=%%f
 
-rem バッチファイルの場所
+REM バッチファイルの場所
 set batchPath=%~dp0
 
-rem ソース置き場
+REM ソース置き場
 cd /d "%batchPath%..\..\"
 for /f "delims=" %%f in ( 'cd' ) do set sourceDir=%%f
 cd /d "%currentPath%"
 
-rem FastCopyパス作成
+REM FastCopyパス作成
 set fastcopyExe="%sourceDir%\Build\Tools\%fastcopyPath%"
-rem FastCopyパス表示
+REM FastCopyパス表示
 echo FastCopy : %fastcopyExe%
 
-rem Ninja
-set ninjaExe="%sourceDir%\%ninjaPath%"
-rem Ninjaパス表示
+REM Ninja
+set ninjaExe="%sourceDir%\Build\Tools\%ninjaPath%"
+REM Ninjaパス表示
 echo Ninja : %ninjaExe%
 
-rem Ninjaファイルチェック
+REM Ninjaファイルチェック
 call "%sourceDir%\Build\Ninja\Ninja_Build.bat"
 
-rem CUDAパス
+REM CUDAパス
 set cudaPath=%sourceDir%\CUDA
-rem CUDAパス表示
+REM CUDAパス表示
 echo CUDA : %cudaPath%
 
-rem アドレスモデル切り替え
+REM アドレスモデル切り替え
 if /%Platform%==/ (
 	set platformName=Win32
 ) else (
 	set platformName=x64
 )
 
-rem Visual Studioバージョン切り替え
+REM Visual Studioバージョン切り替え
 if /%VisualStudioVersion%==/11.0 (
 	set vsVersion=vs2012
 	set vcVersion=110
@@ -93,15 +96,15 @@ if /%VisualStudioVersion%==/11.0 (
 	set vcVersion=100
 )
 
-echo Static Release
-cd /d %batchPath%
-call :Main static release
+REM echo Static Release
+REM cd /d %batchPath%
+REM call :Main static release
 echo Shared Release
 cd /d %batchPath%
 call :Main shared release
-echo Static Debug
-cd /d %batchPath%
-call :Main static debug
+REM echo Static Debug
+REM cd /d %batchPath%
+REM call :Main static debug
 echo Shared Debug
 cd /d %batchPath%
 call :Main shared debug
@@ -110,78 +113,73 @@ goto :EOF
 
 :Main
 
-rem Staticビルド/Dynamicビルド切り替え
+REM Staticビルド/Dynamicビルド切り替え
 if /%1==/shared (
-    set linkType=Shared
+	set linkType=Shared
 ) else (
-    set linkType=Static
+	set linkType=Static
 )
 
-rem Release/Debug切り替え
+REM Release/Debug切り替え
 if /%2==/debug (
-    set configType=Debug
+	set configType=Debug
 ) else (
-    set configType=Release
+	set configType=Release
 )
 
-rem ビルドディレクトリ
-set buildDir=%batchPath%Build_%vsVersion%_%platformName%_%linkType%_%configType%
+REM Configuration実行
+call %batchPath%OpenCV_Configuration.bat %1 %2 %flagAvx%
 
-rem ビルドディレクトリ表示
+REM ビルドディレクトリ
+set buildDir=%buildBuf%\%vsVersion%\%platformName%\%configType%\%linkType%\OpenCV
+
+REM ビルドディレクトリ表示
 echo build directory : %buildDir%
 
-rem インストールディレクトリ
-set finalDir=%sourceDir%\Final\v%vcVersion%\OpenCV
-
-rem ビルドディレクトリ確認
-rem if not exist "%buildDir%" (
-	rem Configuration実行
-	call %batchPath%OpenCV_Configuration.bat %1 %2 %flagAvx%
-rem )
-
-rem CUDAパス再設定(※ Configurationよりも後でやる)
+REM CUDAパス再設定(※ Configurationよりも後でやる)
 if not /"%cudaPath%"==/"%CUDA_PATH%" (
 	set CUDA_PATH=%cudaPath%
 )
 
-rem ビルドディレクトリへ移動
+REM ビルドディレクトリへ移動
 cd /d "%buildDir%"
 %ninjaExe% %buildType% -j %numOfParallel%
 call :ErrorCheck
 
-rem インストール
+REM インストールディレクトリ
+set finalDir=%buildBuf%\Final\v%vcVersion%\OpenCV
+
+REM インストール
 if /%buildType%==/install (
-	rem インストールディレクトリ表示
+	REM インストールディレクトリ表示
 	echo install : %finalDir%
 
-	rem includeディレクトリコピー
+	REM includeディレクトリコピー
 	%fastcopyExe% %fastcopyMode% /cmd=diff /exclude="cvconfig.h" "install\include" /to="%finalDir%\"
-	rem cmakeディレクトリのコピー
-	%fastcopyExe% %fastcopyMode% /cmd=diff "%batchPath%\cmake" /to="%finalDir%\"
 
-	rem 個別ファイルコピー
+	REM 個別ファイルコピー
 	%fastcopyExe% %fastcopyMode% /cmd=diff "install\include\opencv2\cvconfig.h" /to="%finalDir%\include"
 
-	rem 個別ファイルリネーム
+	REM 個別ファイルリネーム
 	if exist "%finalDir%\include\cvconfig_%platformName%_%linkType%_%configType%.h" (
 		del "%finalDir%\include\cvconfig_%platformName%_%linkType%_%configType%.h"
 	)
 	ren "%finalDir%\include\cvconfig.h" cvconfig_%platformName%_%linkType%_%configType%.h
 
-	rem bin&libファイルコピー
+	REM bin&libファイルコピー
 	if /%linkType%==/Shared (
 		call :Shared
 	) else (
 		call :Static
 	)
 
-	rem セットヘッダのコピー
+	REM セットヘッダのコピー
 	%fastcopyExe% %fastcopyMode% /cmd=diff "%batchPath%\files\opencvset.h" /to="%finalDir%\include\"
 
-	rem Copyバッチのコピー
+	REM Copyバッチのコピー
 	%fastcopyExe% %fastcopyMode% /cmd=diff "%batchPath%\files\OpenCvCopy.bat" /to="%finalDir%\"
 
-	rem バージョン番号ファイル追加
+	REM バージョン番号ファイル追加
 	type nul > %finalDir%\OpenCV_%openCvVersion%
 )
 
@@ -191,10 +189,10 @@ goto :EOF
 
 :Shared
 
-rem binディレクトリコピー
+REM binディレクトリコピー
 %fastcopyExe% %fastcopyMode% /cmd=diff /include="*.dll;*.pdb" /exclude="opencv_waldboost_detector*" "bin" /to="%finalDir%\bin\%platformName%"
 
-rem libディレクトリコピー
+REM libディレクトリコピー
 %fastcopyExe% %fastcopyMode% /cmd=diff /include="opencv_*.lib" "lib" /to="%finalDir%\lib\%platformName%"
 
 exit /b
@@ -203,20 +201,15 @@ goto :EOF
 
 :Static
 
-rem binディレクトリコピー
+REM binディレクトリコピー
 %fastcopyExe% %fastcopyMode% /cmd=diff /include="*.dll" "bin" /to="%finalDir%\bin\%platformName%"
 
-rem libディレクトリコピー
-%fastcopyExe% %fastcopyMode% /cmd=diff /include="opencv_*.lib;opencv_*.pdb" /exclude="opencv_python3*" "lib" /to="%finalDir%\lib\%platformName%\static"
+REM libディレクトリコピー
+%fastcopyExe% %fastcopyMode% /cmd=diff /include="opencv_*.lib;opencv_*.pdb" /exclude="opencv_python3*" "lib" /to="%finalDir%\lib\%platformName%"
 
-rem 3rdpartyライブラリコピー
-%fastcopyExe% %fastcopyMode% /cmd=diff /include="*.lib;*.pdb" "3rdparty\lib" /to="%finalDir%\lib\%platformName%\static"
-%fastcopyExe% %fastcopyMode% /cmd=diff "3rdparty\ippicv\ippicv_win\lib\intel64\ippicvmt.lib" /to="%finalDir%\lib\%platformName%\static"
-
-rem Python3コピー
-if /%configType%==/Release (
-	%fastcopyExe% %fastcopyMode% /cmd=diff "lib\python3" /to="%finalDir%\Python3"
-)
+REM 3rdpartyライブラリコピー
+%fastcopyExe% %fastcopyMode% /cmd=diff /include="*.lib;*.pdb" "3rdparty\lib" /to="%finalDir%\lib\%platformName%"
+%fastcopyExe% %fastcopyMode% /cmd=diff "3rdparty\ippicv\ippicv_win\lib\intel64\ippicvmt.lib" /to="%finalDir%\lib\%platformName%\"
 
 exit /b
 
