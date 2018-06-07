@@ -1,20 +1,30 @@
 @echo off
 setlocal
 
-rem ライブラリパス
-set boostDir=boost_1_64_0
-set bzipDir=bzip2-1.0.6
-set zlibDir=zlib-1.2.11
-set anacondaDir=D:\Anaconda3
+REM FastCopy
+set fastcopyPath=FastCopy341_x64\FastCopy.exe
 
-rem バージョン設定
-set boostVersion=1.64
-set pythonVersion=3.5
+REM FastCopyモード
+set fastcopyMode=/force_close
 
-rem 並列ビルド数
+REM ビルドバッファ
+set buildBuf=C:\Library\Temp
+
+REM ライブラリパス
+set boostDir=boost
+set bzip2Dir=bzip2
+set icuDir=icu4c
+set zlibDir=zlib
+set pythonDir=C:\Library\Python
+
+REM バージョン設定
+set boostVersion=1.67
+set pythonVersion=3.6
+
+REM 並列ビルド数
 set numOfParallel=%NUMBER_OF_PROCESSORS%
 
-rem 引数解析
+REM 引数解析
 if /%1==/install (
 	set buildType=install
 	if /%2==/avx (
@@ -34,37 +44,47 @@ if /%1==/install (
 	set avxType=Disable
 )
 
-rem ビルド条件表示
+REM ビルド条件表示
 echo build type : %buildType%
 echo avx type : %avxType%
 
-rem 現在のパスの保持
+REM 現在のパスの保持
 for /f "delims=" %%f in ( 'cd' ) do set currentPath=%%f
 
-rem バッチファイルの場所
+REM バッチファイルの場所
 set batchPath=%~dp0
 
-rem ソース置き場
+REM ソース置き場
 cd /d "%batchPath%..\..\"
 for /f "delims=" %%f in ( 'cd' ) do set sourceDir=%%f
 cd /d "%currentPath%"
 
-rem boostパス
+REM FastCopyパス作成
+set fastcopyExe="%sourceDir%\Build\Tools\%fastcopyPath%"
+REM FastCopyパス表示
+echo FastCopy : %fastcopyExe%
+
+REM boostパス
 set boostPath=%sourceDir%\%boostDir%
-rem boostパス表示
+REM boostパス表示
 echo Boost : %boostPath%
 
-rem bzipパス
-set bzipPath=%sourceDir%\%bzipDir%
-rem bzipパス表示
-echo bzip : %bzipPath%
+REM bzip2パス
+set bzip2Path=%sourceDir%\%bzip2Dir%
+REM bzip2パス表示
+echo bzip2 : %bzip2Path%
 
-rem zlibパス
+REM icuパス
+set icuPath=%sourceDir%\%icuDir%
+REM icuパス表示
+echo icu : %icuPath%
+
+REM zlibパス
 set zlibPath=%sourceDir%\%zlibDir%
-rem zlibパス表示
+REM zlibパス表示
 echo zlib : %zlibPath%
 
-rem アドレスモデル切り替え
+REM アドレスモデル切り替え
 if /%Platform%==/ (
 	set addmodel=86
 	set platformName=Win32
@@ -73,58 +93,62 @@ if /%Platform%==/ (
 	set platformName=x64
 )
 
-rem Visual Studioバージョン切り替え
+REM Visual Studioバージョン切り替え
 if /%VisualStudioVersion%==/11.0 (
 	set vsVersion=vs2012
 	set vcVersion=110
 	set toolsetName=msvc-11.0
+	set cppver=
 ) else if /%VisualStudioVersion%==/12.0 (
 	set vsVersion=vs2013
 	set vcVersion=120
 	set toolsetName=msvc-12.0
+	set cppver=
 ) else if /%VisualStudioVersion%==/14.0 (
 	set vsVersion=vs2015
 	set vcVersion=140
 	set toolsetName=msvc-14.0
+	set cppver="/std:c++14"
 ) else if /%VisualStudioVersion%==/15.0 (
 	set vsVersion=vs2017
 	set vcVersion=141
 	set toolsetName=msvc-14.1
+	set cppver="/std:c++14"
 ) else (
 	set vsVersion=vs2010
 	set vcVersion=100
 	set toolsetName=msvc-10.0
+	set cppver
 )
 
-rem ビルドディレクトリ
-set buildDir=%batchPath%Build_%vsVersion%_%platformName%
+REM ビルドディレクトリ
+set buildPath=%buildBuf%\%vsVersion%\%platformName%\Boost
+set buildDir=%buildPath%\Tmp
+set stageDir=%buildPath%\Stage
 
-rem インストールディレクトリ
-set finalDir=%sourceDir%\Final\v%vcVersion%\Boost
-rem インストールディレクトリ表示
-echo install : %finalDir%
-
-rem Boostディレクトリに移動
+REM Boostディレクトリに移動
 cd /d "%boostPath%"
 
-rem b2ファイル作成
-set anacondaPath=%anacondaDir:\=\\%
+REM b2ファイル作成
+set pythonPath=%pythonDir:\=\\%
 if not exist b2.exe (
-	rem バッチ実行
+	REM バッチ実行
 	call bootstrap.bat
-	rem python設定
-	echo using python : %pythonVersion% : %anacondaPath% : %anacondaPath%\\include : %anacondaPath%\\libs ; >> project-config.jam
+	REM python設定
+	echo using python : %pythonVersion% : %pythonPath% : %pythonPath%\\include : %pythonPath%\\libs ; >> project-config.jam
 )
 
-rem 引数作成
+REM 引数作成
 if /%avxType%==/Enable (
+	REM set instructionOptionOrig="instruction-set=sandy-bridge"
 	set instructionOptionOrig=""
+	echo Enable AVX
 ) else (
 	set instructionOptionOrig="instruction-set=nehalem"
 )
 set instructionOption=%instructionOptionOrig:"=%
 
-rem ビルド
+REM ビルド
 b2.exe ^
 %buildType% ^
 toolset=%toolsetName% ^
@@ -133,58 +157,45 @@ link=static,shared ^
 runtime-link=shared ^
 threading=multi ^
 variant=release,debug ^
+embed-manifest=off ^
 debug-symbols=on ^
+cxxflags=%cppver% ^
 -j%numOfParallel% ^
--sBZIP2_SOURCE="%bzippath%" ^
--sZLIB_SOURCE="%zlibpath%" ^
+-sBZIP2_SOURCE="%bzip2Path%" ^
+-sZLIB_SOURCE="%zlibPath%" ^
+-sICU_PATH="%icuPath%" ^
 --build-dir="%buildDir%" ^
---prefix="%finalDir%" ^
---stagedir="%finalDir%" ^
+--prefix="%stageDir%" ^
+--stagedir="%stageDir%" ^
 --build-type=complete ^
 --without-mpi %instructionOption%
 call :ErrorCheck
 
-rem インストール
+REM インストールディレクトリ
+set finalDir=%buildBuf%\Final\v%vcVersion%\Boost
+
+REM インストール
 if /%buildType%==/install (
-	rem includeフォルダ確認
-	if exist "%finalDir%\include\boost" (
-		rd /S /Q "%finalDir%\include\boost"
+	REM インストールディレクトリ表示
+	echo install : %finalDir%
+
+	REM includeディレクトリコピー
+	for /f %%d in ( 'dir /a:D /B "%stageDir%\include"' ) do (
+		%fastcopyExe% %fastcopyMode% /cmd=diff "%stageDir%\include\%%d" /to="%finalDir%\include"
 	)
 
-	rem includeフォルダ整形
-	for /f %%d in ( 'dir /a:D /B "%finalDir%\include"' ) do (
-		move "%finalDir%\include\%%d\boost" "%finalDir%\include\boost"
-		rd "%finalDir%\include\%%d"
-	)
+	REM dllコピー
+	%fastcopyExe% %fastcopyMode% /cmd=diff /include="*.dll" "%stageDir%\lib" /to="%finalDir%\bin\%platformName%"
 
-	rem binフォルダ作成
-	if exist "%finalDir%\bin\%platformName%" (
-		rd /S /Q "%finalDir%\bin\%platformName%"
-	)
-	mkdir "%finalDir%\bin\%platformName%"
+	REM libコピー
+	%fastcopyExe% %fastcopyMode% /cmd=diff /include="*.lib" "%stageDir%\lib" /to="%finalDir%\lib\%platformName%"
 
-	rem dll移動
-	for /f "delims=" %%f in ( 'dir "%finalDir%\lib" /a-D /B /S ^| findstr "boost[^\\]*%vcVersion%[^\\]*dll$"' ) do (
-		move "%%f" "%finalDir%\bin\%platformName%"
-	)
-
-	rem libフォルダ作成
-	if exist "%finalDir%\lib\%platformName%" (
-		rd /S /Q "%finalDir%\lib\%platformName%"
-	)
-	mkdir "%finalDir%\lib\%platformName%"
-
-	rem lib移動
-	for /f "delims=" %%f in ( 'dir "%finalDir%\lib" /a-D /B /S ^| findstr ".*%vcVersion%[^\\]*lib$"' ) do (
-		move "%%f" "%finalDir%\lib\%platformName%"
-	)
-
-	rem pdbコピー
+	REM pdbコピー
 	for /f "delims=" %%f in ( 'dir "%buildDir%" /a-D /B /S ^| findstr "boost[^\\]*%vcVersion%[^\\]*pdb$"' ) do (
 		copy "%%f" "%finalDir%\bin\%platformName%"
 	)
 
-	rem バージョン番号ファイル追加
+	REM バージョン番号ファイル追加
 	type nul > %finalDir%\Boost_%boostVersion%
 )
 
