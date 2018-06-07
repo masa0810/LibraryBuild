@@ -1,315 +1,408 @@
 @echo off
 setlocal
 
-rem CMake
-set cmakePath=cmake-3.7.2-win64-x64\bin\cmake.exe
+REM CMake
+set cmakePath=CMake\bin\cmake.exe
 
-rem ninja
-set ninjaPath=ninja-1.7.2\ninja.exe
+REM ninja
+set ninjaPath=Ninja\ninja.exe
 
-rem ライブラリパス
-set eigenDir=eigen-eigen-5a0156e40feb
-set openBlasDir=OpenBLAS-v0.2.19-Win64-int32
-set openCvContribDir=opencv_contrib-3.2.0
-set openCvDir=opencv-3.2.0
-set protoBufDir=protobuf-3.3.2
-set tbbDir=tbb-2017_U7
+REM ライブラリパス
+set openBlasDir=OpenBLAS
+set openCv3rdpartyDir=opencv_3rdparty
+set openCvContribDir=opencv_contrib
+set openCvDir=opencv
+set tbbDir=tbb
+set gstreamerDir=C:\Library\Gstreamer
+set intelLibraryDirOrig="C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows"
+set intelLibraryDir=%intelLibraryDirOrig:"=%
 
-rem Staticビルド/Dynamicビルド切り替え
+REM Staticビルド/Dynamicビルド切り替え
 if /%1==/shared (
 	set flagShared=ON
-    set linkType=Shared
+	set linkType=Shared
+
+	set postfixR=
+	set postfixD=d
+
+	REM set glogFlagOrig="/DGLOG_NO_ABBREVIATED_SEVERITIES"
 ) else (
 	set flagShared=OFF
-    set linkType=Static
-)
+	set linkType=Static
 
-rem Release/Debug切り替え
+	set postfixR=_static
+	set postfixD=_staticd
+
+	REM set glogFlagOrig="/DGLOG_NO_ABBREVIATED_SEVERITIES /DGOOGLE_GLOG_DLL_DECL= /DGOOGLE_GLOG_DLL_DECL_FOR_UNITTESTS="
+)
+set glogFlagOrig="/DGLOG_NO_ABBREVIATED_SEVERITIES /DGOOGLE_GLOG_DLL_DECL= /DGOOGLE_GLOG_DLL_DECL_FOR_UNITTESTS="
+set glogFlag=%glogFlagOrig:"=%
+
+REM Release/Debug切り替え
 if /%2==/debug (
 	set flagDebug=ON
-    set configType=Debug
-	set flagCudaFastMath=OFF
+	set flagRelease=OFF
+	set configType=Debug
+
+	set postfix=%postfixD%
 ) else (
+	set flagRelease=ON
 	set flagDebug=OFF
-    set configType=Release
-	set flagCudaFastMath=ON
+	set configType=Release
+	
+	set postfix=%postfixR%
 )
 
-rem avx判定
+REM avx判定
 if /%3==/avx (
-	set flagAvx=ON
+	set cpuBaseLineOrig="-DCPU_BASELINE=""AVX2"""
 	set avxType=Enable
+	echo Enable AVX
 ) else (
-	set flagAvx=OFF
+	set cpuBaseLineOrig="-DCPU_BASELINE=""SSE4_2"""
 	set avxType=Disable
 )
+set cpuBaseLine=%cpuBaseLineOrig:"=%
 
-rem Python切り替え
-if /%linkType%==/Shared (
-    set flagPython=OFF
-) else (
-    if /%configType%==/Debug (
-	    set flagPython=OFF
-    ) else (
-	    set flagPython=ON
-    )
-)
+REM Python切り替え
+REM if /%linkType%==/Shared (
+REM 	set flagPython=OFF
+REM ) else (
+REM 	if /%configType%==/Debug (
+REM 		set flagPython=OFF
+REM 	) else (
+REM 		if /%VisualStudioVersion%==/14.0 (
+REM 			set flagPython=ON
+REM 		) else (
+REM 			set flagPython=OFF
+REM 		)
+REM 	)
+REM )
+set flagPython=OFF
 
-rem ビルド条件表示
+REM ビルド条件表示
 echo link type : %linkType%
 echo config type : %configType%
 echo avx type : %avxType%
 echo python build : %flagPython%
 
-rem 現在のパスの保持
+REM 現在のパスの保持
 for /f "delims=" %%f in ( 'cd' ) do set currentPath=%%f
 
-rem バッチファイルの場所
+REM バッチファイルの場所
 set batchPath=%~dp0
 
-rem ソース置き場
+REM ソース置き場
 cd /d "%batchPath%..\..\"
 for /f "delims=" %%f in ( 'cd' ) do set sourceDir=%%f
 cd /d "%currentPath%"
 
-rem CMakeパス作成
+REM CMakeパス作成
 set cmakeExe="%sourceDir%\Build\Tools\%cmakePath%"
-rem CMakeパス表示
+REM CMakeパス表示
 echo CMake : %cmakeExe%
 
-rem Ninja
-set ninjaExe="%sourceDir%\%ninjaPath%"
-rem Ninjaパス表示
+REM Ninja
+set ninjaExe="%sourceDir%\Build\Tools\%ninjaPath%"
+REM Ninjaパス表示
 echo Ninja : %ninjaExe%
 
-rem Ninjaファイルチェック
+REM Ninjaファイルチェック
 call "%sourceDir%\Build\Ninja\Ninja_Build.bat"
 
-rem Eigenパス
-set eigenPath=%sourceDir%\%eigenDir%
-rem Eigenパス表示
-echo Eigen : %eigenPath%
+REM MKLパス
+set mklPath=%intelLibraryDir%\mkl
+REM MKLパス表示
+echo MKL : %mklPath%
 
-rem OpenBLASパス
-set openBlasPath=%sourceDir%\%openBlasDir%
-rem OpenBLASパス表示
-echo OpenBLAS : %openBlasPath%
+REM OpenCV 3rd Partyパス
+set openCv3rdpartyPath=%sourceDir%\%openCv3rdpartyDir%
+REM OpenCV 3rd Partyパス表示
+echo OpenCV 3rd Party : %openCv3rdpartyPath%
 
-rem OpenCV Contribパス
+REM OpenCV Contribパス
 set openCvContribPath=%sourceDir%\%openCvContribDir%
-rem OpenCV Contribパス表示
+REM OpenCV Contribパス表示
 echo OpenCV Contrib : %openCvContribPath%
 
-rem OpenCV
+REM OpenCV
 set openCvPath=%sourceDir%\%openCvDir%
-rem OpenCVパス表示
+REM OpenCVパス表示
 echo OpenCV : %openCvPath%
 
-rem TBBパス
-set tbbPath=%sourceDir%\%tbbDir%
-rem TBBパス表示
+REM TBBパス
+REM set tbbPath=%sourceDir%\%tbbDir%
+set tbbPath=%intelLibraryDir%\tbb
+REM TBBパス表示
 echo TBB : %tbbPath%
 
-rem CUDAパス
+REM CUDAパス
 set cudaPath=%sourceDir%\CUDA
-rem CUDAパス表示
+REM CUDAパス表示
 echo CUDA : %cudaPath%
 
-rem CUDAパス確認
+REM CUDAパス確認
 if not exist %cudaPath% (
 	powershell -Command Start-Process -Wait -FilePath cmd.exe -Verb runas -ArgumentList '/c','"mklink /D ""%cudaPath%""" """%CUDA_PATH%"""'
 )
 
-rem CUDAパス再設定
+REM CUDAパス再設定
 if not /"%cudaPath%"==/"%CUDA_PATH%" (
 	set CUDA_PATH=%cudaPath%
 )
 
-rem アドレスモデル切り替え
+REM アドレスモデル切り替え
 if /%Platform%==/ (
 	set platformName=Win32
+	set platformNameShort=x86
+	set platformNameIntel=ia32
+	set platformNameGst=x86
 ) else (
 	set platformName=x64
+	set platformNameShort=x64
+	set platformNameIntel=intel64
+	set platformNameGst=x86_64
 )
 
-rem Visual Studioバージョン切り替え
+REM Visual Studioバージョン切り替え
 if /%VisualStudioVersion%==/11.0 (
 	set vsVersion=vs2012
 	set flagCuda=ON
 	set flagMsmf=ON
+	set flagHalide=OFF
+	set flagSfm=ON
+	set vcVersion=vc11
 ) else if /%VisualStudioVersion%==/12.0 (
 	set vsVersion=vs2013
 	set flagCuda=ON
 	set flagMsmf=ON
+	set flagHalide=OFF
+	set flagSfm=ON
+	set vcVersion=vc12
 ) else if /%VisualStudioVersion%==/14.0 (
 	set vsVersion=vs2015
 	set flagCuda=ON
 	set flagMsmf=ON
+	set flagHalide=ON
+	set flagSfm=ON
+	set vcVersion=vc14
 ) else if /%VisualStudioVersion%==/15.0 (
 	set vsVersion=vs2017
-	set flagCuda=OFF
+	set flagCuda=ON
 	set flagMsmf=ON
+	set flagHalide=ON
+	set flagSfm=ON
+	REM set vcVersion=vc141
+	set vcVersion=vc14
 ) else (
 	set vsVersion=vs2010
 	set flagCuda=ON
 	set flagMsmf=OFF
+	set flagHalide=OFF
+	set flagSfm=ON
+	set vcVersion=vc10
 )
 
-rem HDF5
-set hdf5Path=%sourceDir%\Build\HDF5\Build_%vsVersion%_%platformName%_%linkType%_%configType%\install
-rem HDF5インクルード
-set hdf5IncludePath=%hdf5Path%\include
-rem HDF5ライブラリ
-if /%linkType%==/Shared (
-    if /%configType%==/Debug (
-		set hdf5LibPath=%hdf5Path%\lib\hdf5_D.lib
-	) else (
-		set hdf5LibPath=%hdf5Path%\lib\hdf5.lib
-	)
+REM Gstreamerパス作成
+set gstPath=%gstreamerDir%\1.0\%platformNameGst%
+REM Gstreamerパス表示
+echo Gstreamer : %gstPath%
+
+REM Eigenパス
+set eigenPath=%buildBuf%\%vsVersion%\%platformName%\Eigen\install\include\eigen3
+REM Eigenパス表示
+echo Eigen : %eigenPath%
+
+REM gflags
+set gflagPath=%buildBuf%\%vsVersion%\%platformName%\%configType%\Gflags\install
+REM gflagsパス表示
+echo gflags path : %gflagPath%
+
+REM glog
+REM set glogPath=%buildBuf%\%vsVersion%\%platformName%\%configType%\%linkType%\Glog\install
+set glogPath=%buildBuf%\%vsVersion%\%platformName%\%configType%\Static\Glog\install
+REM glogパス表示
+echo glog path : %glogPath%
+
+REM HDF5
+REM set hdf5Path=%buildBuf%\%vsVersion%\%platformName%\%configType%\%linkType%\HDF5\install
+set hdf5Path=%buildBuf%\%vsVersion%\%platformName%\%configType%\Static\HDF5\install
+REM HDF5ライブラリ
+REM if /%linkType%==/Shared (
+REM 	set hdf5prefix=
+REM ) else (
+	set hdf5prefix=lib
+REM )
+if /%configType%==/Debug (
+	set hdf5postfix=_D
 ) else (
-    if /%configType%==/Debug (
-		set hdf5LibPath=%hdf5Path%\lib\libhdf5_D.lib
-	) else (
-		set hdf5LibPath=%hdf5Path%\lib\libhdf5.lib
-	)
+	set hdf5postfix=
 )
-rem HDF5パス表示
-echo HDF5 Path : %hdf5Path%
-echo HDF5 include Path : %hdf5IncludePath%
-echo HDF5 lib Path : %hdf5LibPath%
+REM HDF5パス表示
+echo hdf5 path : %hdf5Path%
+echo hdf5 lib path : %hdf5Path%\lib\%hdf5prefix%hdf5%hdf5postfix%.lib
 
-rem ProtoBuf
-set protoBufPath=%sourceDir%\Build\ProtoBuf\Build_%vsVersion%_%platformName%_%linkType%_%configType%\install
-set protoBufDebugPath=%sourceDir%\Build\ProtoBuf\Build_%vsVersion%_%platformName%_%linkType%_Debug\install
-set protoBufReleasePath=%sourceDir%\Build\ProtoBuf\Build_%vsVersion%_%platformName%_%linkType%_Release\install
-rem ProtoBufインクルード
-set protoBufIncludePath=%sourceDir%\%protoBufDir%\src
-rem ProtoBufライブラリ
-set protoBufDebugLibPath=%protoBufDebugPath%\lib
-set protoBufReleaseLibPath=%protoBufReleasePath%\lib
-rem Protocパス
-set protocExe="%sourceDir%\Build\ProtoBuf\Build_%vsVersion%_%platformName%_Static_Release\install\bin\protoc.exe"
-
-rem ProtoBufパス表示
-echo ProtoBuf Path : %protoBufPath%
-echo ProtoBuf include Path : %protoBufIncludePath%
-echo ProtoBuf debug lib Path : %protoBufDebugLibPath%
-echo ProtoBuf release lib Path : %protoBufReleaseLibPath%
-echo ProtoBuf Compiler Path : %protocExe%
-
-rem jpeg
-set jpegPath=%sourceDir%\Build\libJpeg-turbo\Build_%vsVersion%_%platformName%_%configType%\install
-rem jpegインクルード
-set jpegIncludePath=%jpegPath%\include
-rem jpegライブラリ
-if /%linkType%==/Shared (
-    if /%configType%==/Debug (
-		set jpegLibPath=%jpegPath%\lib\jpegd.lib
-	) else (
-		set jpegLibPath=%jpegPath%\lib\jpeg.lib
-	)
+REM Halide
+set halidePath=%buildBuf%\%vsVersion%\%platformName%\%configType%\Halide
+REM Halideライブラリ
+if /%configType%==/Debug (
+	set halidePostfix=d
 ) else (
-    if /%configType%==/Debug (
-		set jpegLibPath=%jpegPath%\lib\jpeg-staticd.lib
-	) else (
-		set jpegLibPath=%jpegPath%\lib\jpeg-static.lib
-	)
+	set halidePostfix=
+)
+REM Halideパス表示
+echo halide Path : %halidePath%
+echo halide lib Path : %halidePath%\lib\Halide%postfix%.lib
+
+REM Halideの定数定義オプション
+set halideDefineString=-DHALIDE_INCLUDE_DIR="%halidePath:\=/%/include" ^
+-DHALIDE_INCLUDE_DIRS="%halidePath:\=/%/include" ^
+-DHALIDE_LIBRARIES="%halidePath:\=/%/lib/Halide%halidePostfix%.lib" ^
+-DHALIDE_LIBRARY="%halidePath:\=/%/lib/Halide%halidePostfix%.lib%" ^
+-DHALIDE_ROOT_DIR="%halidePath:\=/%" ^
+-DHalide_DIR="%halidePath:\=/%"
+
+REM Visual StudioがHalideをサポートしない場合は、Halideの定数定義オプションを空文字列にする。
+if /%flagHalide%==/OFF (
+	set halideDefineString=
+	echo Halideなしでビルド %vsVersion%
 )
 
-rem jpegパス表示
+REM jpeg
+set jpegPath=%buildBuf%\%vsVersion%\%platformName%\%configType%\libJpeg-turbo\install
+REM HDF5ライブラリ
+REM if /%linkType%==/Shared (
+REM 	set jpegPostfixTmp=
+REM ) else (
+	set jpegPostfixTmp=-static
+REM )
+if /%configType%==/Debug (
+	set jpegPostfix=%jpegPostfixTmp%d
+) else (
+	set jpegPostfix=%jpegPostfixTmp%
+)
+REM jpegパス表示
 echo jpeg Path : %jpegPath%
-echo jpeg include Path : %jpegIncludePath%
-echo jpeg debug lib Path : %jpegLibPath%
+echo jpeg lib Path : %jpegPath%\lib\jpeg%jpegPostfix%.lib
 
-rem zlib
-set zlibPath=%sourceDir%\Build\Zlib\Build_%vsVersion%_%platformName%_%configType%\install
-set zlibDebugPath=%sourceDir%\Build\Zlib\Build_%vsVersion%_%platformName%_Debug\install
-set zlibReleasePath=%sourceDir%\Build\Zlib\Build_%vsVersion%_%platformName%_Release\install
-rem zlibインクルード
-set zlibIncludePath=%zlibPath%\include
-rem zlibライブラリ
-if /%linkType%==/Shared (
-	set zlibDebugLibPath=%zlibDebugPath%\lib\zlibd.lib
-	set zlibReleaseLibPath=%zlibReleasePath%\lib\zlib.lib
-) else (
-	set zlibDebugLibPath=%zlibDebugPath%\lib\zlibstaticd.lib
-	set zlibReleaseLibPath=%zlibReleasePath%\lib\zlibstatic.lib
-)
+REM ProtoBuf
+REM set protoBufPath=%buildBuf%\%vsVersion%\%platformName%\%configType%\%linkType%\ProtoBuf\install
+set protoBufPath=%buildBuf%\%vsVersion%\%platformName%\%configType%\Static\ProtoBuf\install
+REM set protoBufPathD=%buildBuf%\%vsVersion%\%platformName%\Debug\%linkType%\ProtoBuf\install
+set protoBufPathD=%buildBuf%\%vsVersion%\%platformName%\Debug\Static\ProtoBuf\install
+REM set protoBufPathR=%buildBuf%\%vsVersion%\%platformName%\Release\%linkType%\ProtoBuf\install
+set protoBufPathR=%buildBuf%\%vsVersion%\%platformName%\Release\Static\ProtoBuf\install
+set protobufCompiler=%buildBuf%\%vsVersion%\%platformName%\Release\Static\ProtoBuf\install\bin\protoc.exe
 
-rem zlibパス表示
+REM ProtoBufパス表示
+echo ProtoBuf Path : %protoBufPath%
+echo ProtoBuf Compiler Path : %protobufCompiler%
+
+REM zlib
+set zlibPath=%buildBuf%\%vsVersion%\%platformName%\%configType%\Zlib\install
+REM zlibライブラリ
+REM if /%linkType%==/Shared (
+REM 	set zlibPostfix=
+REM ) else (
+	set zlibPostfix=static
+REM )
+set zlibLibD=%buildBuf%\%vsVersion%\%platformName%\Debug\Zlib\install\lib\zlib%zlibPostfix%d.lib
+set zlibLibR=%buildBuf%\%vsVersion%\%platformName%\Release\Zlib\install\lib\zlib%zlibPostfix%.lib
+
+REM zlibパス表示
 echo zlib Path : %zlibPath%
-echo zlib include Path : %zlibIncludePath%
-echo zlib debug lib Path : %zlibDebugLibPath%
-echo zlib release lib Path : %zlibReleaseLibPath%
+echo zlib include Path : %zlibPath%\include
+echo zlib debug lib Path : %zlibLibD%
+echo zlib release lib Path : %zlibLibR%
 
-rem ビルドディレクトリ
-set buildDir=%batchPath%Build_%vsVersion%_%platformName%_%linkType%_%configType%
+REM ビルドディレクトリ
+set buildDir=%buildBuf%\%vsVersion%\%platformName%\%configType%\%linkType%\OpenCV
 
-rem ビルドディレクトリ表示
+REM ビルドディレクトリ表示
 echo build directory : %buildDir%
-rem ビルドディレクトリ確認
+REM ビルドディレクトリ確認
 if not exist "%buildDir%" (
 	mkdir "%buildDir%"
 )
-rem ビルドディレクトリへ移動
+REM ビルドディレクトリへ移動
 cd /d "%buildDir%"
 
-rem -G "Visual Studio 14 2015 Win64"^
-rem -DCUDA_ARCH_BIN="3.0 3.5 3.7 5.0 5.2 6.0 6.1" ^
+REM -G "Visual Studio 14 2015 Win64"^
 %cmakeExe% "%openCvPath%" ^
--G "Ninja"  ^
+-G "Ninja" ^
 -DCMAKE_MAKE_PROGRAM=%ninjaExe:\=/% ^
+-DCMAKE_BUILD_TYPE=%configType% ^
 -DEIGEN_INCLUDE_PATH="%eigenPath:\=/%" ^
--DUPDATE_PROTO_FILES=ON ^
+-DCMAKE_DEBUG_POSTFIX="%postfixD%" ^
+-DCMAKE_RELEASE_POSTFIX="%postfixR%" ^
+-DCMAKE_EXE_LINKER_FLAGS="/machine:%platformNameShort% /MANIFEST:NO" ^
+-DCMAKE_MODULE_LINKER_FLAGS="/machine:%platformNameShort% /MANIFEST:NO" ^
+-DCMAKE_SHARED_LINKER_FLAGS="/machine:%platformNameShort% /MANIFEST:NO" ^
+-DPROTOBUF_UPDATE_FILES=ON ^
 -DBUILD_DOCS=OFF ^
 -DBUILD_JPEG=OFF ^
 -DBUILD_PACKAGE=OFF ^
 -DBUILD_PERF_TESTS=OFF ^
+-DBUILD_PROTOBUF=OFF ^
 -DBUILD_SHARED_LIBS=%flagShared% ^
 -DBUILD_TESTS=OFF ^
 -DBUILD_WITH_STATIC_CRT=OFF ^
 -DBUILD_ZLIB=OFF ^
 -DBUILD_opencv_apps=OFF ^
+-DBUILD_opencv_java_bindings_generator=OFF ^
+-DBUILD_opencv_js=OFF ^
+-DBUILD_opencv_sfm=%flagSfm% ^
 -DBUILD_opencv_python3=%flagPython% ^
 -DBUILD_opencv_ts=OFF ^
--DCMAKE_BUILD_TYPE=%configType% ^
--DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W3 /GR /EHa /DHAVE_LAPACK_CONFIG_H /DLAPACK_COMPLEX_CPP /wd4505 /wd4819" ^
--DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W3 /DHAVE_LAPACK_CONFIG_H /DLAPACK_COMPLEX_STRUCTURE /wd4505 /wd4819" ^
--DCMAKE_INSTALL_PREFIX="%buildDir:\=/%/install" ^
--DCUDA_ARCH_BIN="3.0 3.5 3.7 5.0 5.2 6.0 6.1" ^
--DCUDA_FAST_MATH=%flagCudaFastMath% ^
--DCUDA_NVCC_FLAGS="-Xcompiler """/wd4505 /wd4819 /FS"""" ^
--DENABLE_AVX=%flagAvx% ^
--DENABLE_AVX2=%flagAvx% ^
--DENABLE_FMA3=%flagAvx% ^
--DENABLE_POPCNT=ON ^
--DENABLE_SSE41=ON ^
--DENABLE_SSE42=ON ^
--DENABLE_SSSE3=ON ^
--DHDF5_C_LIBRARY="%hdf5LibPath:\=/%" ^
--DHDF5_INCLUDE_DIRS="%hdf5IncludePath:\=/%" ^
--DJPEG_INCLUDE_DIR="%jpegIncludePath:\=/%" ^
--DJPEG_LIBRARY="%jpegLibPath:\=/%" ^
+-DBUILD_opencv_world=ON ^
+-DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W0 /GR /EHsc /bigobj /std:c++14 /DCV_CXX_STD_ARRAY=1 %glogFlag%" ^
+-DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W0 /bigobj %glogFlag%" ^
+-DCMAKE_INSTALL_PREFIX="%buildDir:\=/%/install" %cpuBaseLine% ^
+-DCUDA_ARCH_BIN="5.2 6.1" ^
+-DCUDA_ARCH_PTX="3.0" ^
+-DCUDA_FAST_MATH=%flagRelease% ^
+-DCUDA_NVCC_FLAGS="-Xcompiler """/W0 /FS"""" ^
+-DENABLE_CXX11=ON ^
+-DENABLE_LTO=ON ^
+-Dgflags_DIR="%gflagPath:\=/%/lib/cmake/gflags" ^
+-DGFLAGS_SHARED=%flagShared% ^
+-DGLOG_INCLUDE_DIR="%glogPath:\=/%/include" ^
+-DGLOG_LIBRARY="%glogPath:\=/%/lib/glog%postfix%.lib" ^
+-DGlog_LIBS="%glogPath:\=/%/lib/glog%postfix%.lib" ^
+-DGSTREAMER_DIR="%gstPath:\=/%" ^
+%halideDefineString% ^
+-DHDF5_C_LIBRARY="%hdf5Path:\=/%/lib/%hdf5prefix%hdf5%hdf5postfix%.lib" ^
+-DHDF5_INCLUDE_DIRS="%hdf5Path:\=/%/include" ^
+-DHDF5_USE_DLL=OFF ^
+-DJPEG_INCLUDE_DIR="%jpegPath:\=/%/include" ^
+-DJPEG_LIBRARY="%jpegPath:\=/%/lib/jpeg%jpegPostfix%.lib" ^
+-DMKL_ROOT_DIR="%mklPath:\=/%" ^
+-DMKL_USE_DLL=OFF ^
+-DMKL_USE_MULTITHREAD=ON ^
+-DMKL_WITH_TBB=%flagRelease% ^
+-DMKL_USE_TBB_PREVIEW=OFF ^
+-DOPENCV_DOWNLOAD_PATH="%openCv3rdpartyPath:\=/%" ^
 -DOPENCV_ENABLE_NONFREE=ON ^
 -DOPENCV_EXTRA_MODULES_PATH="%openCvContribPath:\=/%/modules" ^
--DOpenBLAS_INCLUDE_DIR="%openBlasPath:\=/%/include" ^
--DOpenBLAS_LIB="%openBlasPath:\=/%/lib/libopenblas.dll.a" ^
--DProtobuf_INCLUDE_DIR="%protoBufIncludePath:\=/%" ^
--DProtobuf_LIBRARY_DEBUG="%protoBufDebugLibPath:\=/%/libprotobufd.lib" ^
--DProtobuf_LIBRARY_RELEASE="%protoBufReleaseLibPath:\=/%/libprotobuf.lib" ^
--DProtobuf_LITE_LIBRARY_DEBUG="%protoBufDebugLibPath:\=/%/libprotobuf-lited.lib" ^
--DProtobuf_LITE_LIBRARY_RELEASE="%protoBufReleaseLibPath:\=/%/libprotobuf-lite.lib" ^
--DProtobuf_PROTOC_EXECUTABLE=%protocExe:\=/% ^
--DProtobuf_PROTOC_LIBRARY_DEBUG="%protoBufDebugLibPath:\=/%/libprotocd.lib" ^
--DProtobuf_PROTOC_LIBRARY_RELEASE="%protoBufReleaseLibPath:\=/%/libprotoc.lib" ^
+-DProtobuf_INCLUDE_DIR="%protoBufPath:\=/%/include" ^
+-DProtobuf_LIBRARY_DEBUG="%protoBufPathD:\=/%/lib/protobuf%postfixD%.lib" ^
+-DProtobuf_LIBRARY_RELEASE="%protoBufPathR:\=/%/lib/protobuf%postfixR%.lib" ^
+-DProtobuf_LITE_LIBRARY_DEBUG="%protoBufPathD:\=/%/lib/protobuf-lite%postfixD%.lib" ^
+-DProtobuf_LITE_LIBRARY_RELEASE="%protoBufPathR:\=/%/lib/protobuf-lite%postfixR%.lib" ^
+-DProtobuf_PROTOC_EXECUTABLE="%protobufCompiler:\=/%" ^
+-DProtobuf_PROTOC_LIBRARY_DEBUG="%protoBufPathD:\=/%/lib/protoc%postfixD%.lib" ^
+-DProtobuf_PROTOC_LIBRARY_RELEASE="%protoBufPathR:\=/%/lib/protoc%postfixR%.lib" ^
+-DProtobuf_USE_DLL=OFF ^
 -DTBB_ENV_INCLUDE="%tbbPath:\=/%/include" ^
--DTBB_ENV_LIB="%tbbPath:\=/%/build/%vsVersion%/%platformName%/Release/tbb.lib" ^
--DTBB_ENV_LIB_DEBUG="%tbbPath:\=/%/build/%vsVersion%/%platformName%/Debug/tbb_debug.lib" ^
+-DTBB_ENV_LIB="%tbbPath:\=/%/lib/%platformNameIntel%/%vcVersion%/tbb.lib" ^
+-DTBB_ENV_LIB_DEBUG="%tbbPath:\=/%/lib/%platformNameIntel%/%vcVersion%/tbb_debug.lib" ^
+-DTINYDNN_USE_TBB=ON ^
 -DWITH_1394=OFF ^
 -DWITH_CUBLAS=%flagCuda% ^
 -DWITH_CUDA=%flagCuda% ^
 -DWITH_CUFFT=%flagCuda% ^
--DWITH_GSTREAMER=OFF ^
+-DWITH_GSTREAMER=ON ^
+-DWITH_HALIDE=%flagHalide% ^
 -DWITH_MATLAB=OFF ^
 -DWITH_MSMF=%flagMsmf% ^
 -DWITH_NVCUVID=%flagCuda% ^
@@ -318,8 +411,12 @@ rem -DCUDA_ARCH_BIN="3.0 3.5 3.7 5.0 5.2 6.0 6.1" ^
 -DWITH_OPENGL=ON ^
 -DWITH_TBB=ON ^
 -DWITH_VTK=OFF ^
--DZLIB_INCLUDE_DIR="%zlibIncludePath:\=/%" ^
--DZLIB_LIBRARY_DEBUG="%zlibDebugLibPath:\=/%" ^
--DZLIB_LIBRARY_RELEASE="%zlibReleaseLibPath:\=/%"
+-DZLIB_INCLUDE_DIR="%zlibPath:\=/%/include" ^
+-DZLIB_LIBRARY_DEBUG="%zlibLibD:\=/%" ^
+-DZLIB_LIBRARY_RELEASE="%zlibLibR:\=/%"
+
+REM -DCUDA_ARCH_BIN="3.0 3.5 3.7 5.0 5.2 6.0 6.1 7.0" ^
+
+REM pause
 
 endlocal
