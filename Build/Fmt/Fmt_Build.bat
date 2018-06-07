@@ -1,57 +1,133 @@
 @echo off
 setlocal
 
-rem FastCopy
-set fastcopyPath=FastCopy330_x64\FastCopy.exe
+REM CMake
+set cmakePath=CMake\bin\cmake.exe
 
-rem FastCopyモード
+REM ninja
+set ninjaPath=Ninja\ninja.exe
+
+REM FastCopy
+set fastcopyPath=FastCopy341_x64\FastCopy.exe
+
+REM FastCopyモード
 set fastcopyMode=/force_close
 
-rem ライブラリパス
-set fmtDir=fmt-4.0.0
+REM ビルドバッファ
+set buildBuf=C:\Library\Temp
 
-rem バージョン設定
-set fmtVersion=4.0.0
+REM ライブラリパス
+set fmtDir=fmt
 
-rem 現在のパスの保持
+REM バージョン設定
+set fmtVersion=5.0.0
+
+REM 現在のパスの保持
 for /f "delims=" %%f in ( 'cd' ) do set currentPath=%%f
 
-rem バッチファイルの場所
+REM バッチファイルの場所
 set batchPath=%~dp0
 
-rem ソース置き場
+REM ソース置き場
 cd /d "%batchPath%..\..\"
 for /f "delims=" %%f in ( 'cd' ) do set sourceDir=%%f
 cd /d "%currentPath%"
 
-rem FastCopyパス作成
+REM CMakeパス作成
+set cmakeExe="%sourceDir%\Build\Tools\%cmakePath%"
+REM CMakeパス表示
+echo CMake : %cmakeExe%
+
+REM Ninja
+set ninjaExe="%sourceDir%\Build\Tools\%ninjaPath%"
+REM Ninjaパス表示
+echo Ninja : %ninjaExe%
+
+REM Ninjaファイルチェック
+call "%sourceDir%\Build\Ninja\Ninja_Build.bat"
+
+REM FastCopyパス作成
 set fastcopyExe="%sourceDir%\Build\Tools\%fastcopyPath%"
-rem FastCopyパス表示
+REM FastCopyパス表示
 echo FastCopy : %fastcopyExe%
 
-rem Fmtパス
+REM Fmtパス
 set fmtPath=%sourceDir%\%fmtDir%
-rem Fmtパス表示
+REM Fmtパス表示
 echo FMT : %fmtPath%
 
-rem インストールディレクトリ
-set finalDir=%sourceDir%\Final\Fmt
+REM アドレスモデル切り替え
+if /%Platform%==/ (
+	set platformName=Win32
+) else (
+	set platformName=x64
+)
 
-rem インストールディレクトリ表示
+REM Visual Studioバージョン切り替え
+if /%VisualStudioVersion%==/11.0 (
+	set vsVersion=vs2012
+) else if /%VisualStudioVersion%==/12.0 (
+	set vsVersion=vs2013
+) else if /%VisualStudioVersion%==/14.0 (
+	set vsVersion=vs2015
+) else if /%VisualStudioVersion%==/15.0 (
+	set vsVersion=vs2017
+) else (
+	set vsVersion=vs2010
+)
+
+REM ビルドディレクトリ
+set buildDir=%buildBuf%\%vsVersion%\%platformName%\Fmt
+REM ビルドディレクトリ表示
+echo build directory : %buildDir%
+REM ビルドディレクトリ確認
+if not exist "%buildDir%" (
+	mkdir "%buildDir%"
+)
+REM ビルドディレクトリへ移動
+cd /d "%buildDir%"
+
+%cmakeExe% "%fmtPath%" ^
+-G "Ninja" ^
+-DCMAKE_MAKE_PROGRAM=%ninjaExe:\=/% ^
+-DCMAKE_BUILD_TYPE="Release" ^
+-DCMAKE_INSTALL_PREFIX="%buildDir:\=/%/install" ^
+-DFMT_DOC=OFF ^
+-DFMT_TEST=OFF
+
+%ninjaExe% install
+call :ErrorCheck
+
+REM インストールディレクトリ
+set finalDir=%buildBuf%\Final\Fmt
+REM インストールディレクトリ表示
 echo install : %finalDir%
 
-rem インストールディレクトリ削除
+REM インストールディレクトリ削除
 if exist "%finalDir%" (
 	rd /S /Q "%finalDir%"
 )
 
-rem Fmtディレクトリコピー
-%fastcopyExe% %fastcopyMode% /cmd=diff /exclude="*.txt" "%fmtPath%\fmt" /to="%finalDir%\include\"
+REM Fmtディレクトリコピー
+%fastcopyExe% %fastcopyMode% /cmd=diff "install\include" /to="%finalDir%\"
 
-rem セットヘッダのコピー
+REM セットヘッダのコピー
 %fastcopyExe% %fastcopyMode% /cmd=diff "%batchPath%\files\fmtset.h" /to="%finalDir%\include\"
 
-rem バージョン番号ファイル追加
+REM バージョン番号ファイル追加
 type nul > %finalDir%\Fmt_%fmtVersion%
+
+goto :EOF
+
+:ErrorCheck
+if not %errorlevel% == 0 (
+	echo ERROR
+	cd /d "%currentPath%"
+	exit 1
+) else (
+	exit /b
+)
+
+goto :EOF
 
 endlocal
