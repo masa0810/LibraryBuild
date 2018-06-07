@@ -1,66 +1,66 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 
-rem FastCopy
-set fastcopyPath=FastCopy330_x64\FastCopy.exe
+REM FastCopy
+set fastcopyPath=FastCopy341_x64\FastCopy.exe
 
-rem FastCopyモード
+REM FastCopyモード
 set fastcopyMode=/force_close
 
-rem ninja
-set ninjaPath=ninja-1.7.2\ninja.exe
+REM ninja
+set ninjaPath=Ninja\ninja.exe
 
-rem Anacondaパス
-set anacondaDir=D:\Anaconda3
+REM ビルドバッファ
+set buildBuf=C:\Library\Temp
 
-rem バージョン設定
+REM Pythonパス
+set pythonDir=C:\Library\Python
+
+REM バージョン設定
 set caffeVersion=1.0.0
 
-rem 並列ビルド数
-set numOfParallel=%NUMBER_OF_PROCESSORS%
-
-rem 引数解析
+REM 引数解析
 if /%1==/install (
 	set buildType=install
 ) else (
 	set buildType=
 )
 
-rem ビルド条件表示
+REM ビルド条件表示
 echo build type : %buildType%
 
-rem 現在のパスの保持
+REM 現在のパスの保持
 for /f "delims=" %%f in ( 'cd' ) do set currentPath=%%f
 
-rem バッチファイルの場所
+REM バッチファイルの場所
 set batchPath=%~dp0
 
-rem ソース置き場
+REM ソース置き場
 cd /d "%batchPath%..\..\"
 for /f "delims=" %%f in ( 'cd' ) do set sourceDir=%%f
 cd /d "%currentPath%"
 
-rem FastCopyパス作成
+REM FastCopyパス作成
 set fastcopyExe="%sourceDir%\Build\Tools\%fastcopyPath%"
-rem FastCopyパス表示
+REM FastCopyパス表示
 echo FastCopy : %fastcopyExe%
 
-rem Ninja
-set ninjaExe="%sourceDir%\%ninjaPath%"
-rem Ninjaパス表示
+REM Ninja
+set ninjaExe="%sourceDir%\Build\Tools\%ninjaPath%"
+REM Ninjaパス表示
 echo Ninja : %ninjaExe%
 
-rem Ninjaファイルチェック
+REM Ninjaファイルチェック
 call "%sourceDir%\Build\Ninja\Ninja_Build.bat"
 
-rem アドレスモデル切り替え
+REM アドレスモデル切り替え
 if /%Platform%==/ (
 	set platformName=Win32
 ) else (
 	set platformName=x64
 )
 
-rem Visual Studioバージョン切り替え
+REM Visual Studioバージョン切り替え
 if /%VisualStudioVersion%==/11.0 (
 	set vsVersion=vs2012
 	set vcVersion=110
@@ -78,15 +78,15 @@ if /%VisualStudioVersion%==/11.0 (
 	set vcVersion=100
 )
 
-echo Static Release
-cd /d %batchPath%
-call :Main static release
+REM echo Static Release
+REM cd /d %batchPath%
+REM call :Main static release
 echo Shared Release
 cd /d %batchPath%
 call :Main shared release
-echo Static Debug
-cd /d %batchPath%
-call :Main static debug
+REM echo Static Debug
+REM cd /d %batchPath%
+REM call :Main static debug
 echo Shared Debug
 cd /d %batchPath%
 call :Main shared debug
@@ -95,62 +95,61 @@ goto :EOF
 
 :Main
 
-rem Staticビルド/Dynamicビルド切り替え
+REM Staticビルド/Dynamicビルド切り替え
 if /%1==/shared (
-    set linkType=Shared
+	set linkType=Shared
+	set numOfParallel=%NUMBER_OF_PROCESSORS%
 ) else (
-    set linkType=Static
+	set linkType=Static
+	set numOfParallel=1
 )
 
-rem Release/Debug切り替え
+REM Release/Debug切り替え
 if /%2==/debug (
-    set configType=Debug
+	set configType=Debug
 ) else (
-    set configType=Release
+	set configType=Release
 )
 
-rem ビルドディレクトリ
-set buildDir=%batchPath%Build_%vsVersion%_%platformName%_%linkType%_%configType%
+REM Configuration実行
+call %batchPath%Caffe_Configuration.bat %1 %2
 
-rem ビルドディレクトリ表示
+REM ビルドディレクトリ
+set buildDir=%buildBuf%\%vsVersion%\%platformName%\%configType%\%linkType%\Caffe
+
+REM ビルドディレクトリ表示
 echo build directory : %buildDir%
 
-rem インストールディレクトリ
-set finalDir=%sourceDir%\Final\v%vcVersion%\Caffe
-
-rem ビルドディレクトリ確認
-rem if not exist "%buildDir%" (
-	rem Configuration実行
-	call %batchPath%Caffe_Configuration.bat %1 %2
-rem )
-
-rem ビルドディレクトリへ移動
+REM ビルドディレクトリへ移動
 cd /d "%buildDir%"
 %ninjaExe% %buildType% -j %numOfParallel%
 call :ErrorCheck
 
-rem インストール
+REM インストールディレクトリ
+set finalDir=%buildBuf%\Final\v%vcVersion%\Caffe
+
+REM インストール
 if /%buildType%==/install (
-	rem インストールディレクトリ表示
+	REM インストールディレクトリ表示
 	echo install : %finalDir%
 
-	rem includeディレクトリコピー
+	REM includeディレクトリコピー
 	%fastcopyExe% %fastcopyMode% /cmd=diff "install\include" /to="%finalDir%\"
 
-	rem bin&libファイルコピー
+	REM bin&libファイルコピー
 	if /%linkType%==/Shared (
 		call :Shared
 	) else (
 		call :Static
 	)
 
-	rem セットヘッダのコピー
+	REM セットヘッダのコピー
 	%fastcopyExe% %fastcopyMode% /cmd=diff "%batchPath%\files\caffeset.h" /to="%finalDir%\include\"
 
-	rem Copyバッチのコピー
+	REM Copyバッチのコピー
 	%fastcopyExe% %fastcopyMode% /cmd=diff "%batchPath%\files\CaffeCopy.bat" /to="%finalDir%\"
 
-	rem バージョン番号ファイル追加
+	REM バージョン番号ファイル追加
 	type nul > %finalDir%\Caffe_%caffeVersion%
 )
 
@@ -160,10 +159,17 @@ goto :EOF
 
 :Shared
 
-rem binディレクトリコピー
-%fastcopyExe% %fastcopyMode% /cmd=diff /include="caffe*.dll;python*.dll" "install\bin" /to="%finalDir%\bin\%platformName%"
+REM binディレクトリコピー
+%fastcopyExe% %fastcopyMode% /cmd=diff /include="caffe*.dll;caffe*.pdb" "bin" /to="%finalDir%\bin\%platformName%"
 
-rem libディレクトリコピー
+REM PythonDLLのコピー
+if exist "%pythonDir%\python35.dll" (
+	%fastcopyExe% %fastcopyMode% /cmd=diff "%pythonDir%\python35.dll" /to="%finalDir%\bin\%platformName%"
+) else if exist "%pythonDir%\python36.dll" (
+	%fastcopyExe% %fastcopyMode% /cmd=diff "%pythonDir%\python36.dll" /to="%finalDir%\bin\%platformName%"
+)
+
+REM libディレクトリコピー
 %fastcopyExe% %fastcopyMode% /cmd=diff /include="*.lib" /exclude="caffeproto*.lib" "install\lib" /to="%finalDir%\lib\%platformName%"
 
 exit /b
@@ -172,32 +178,26 @@ goto :EOF
 
 :Static
 
-rem libディレクトリコピー
-%fastcopyExe% %fastcopyMode% /cmd=diff /include="*.lib" "install\lib" /to="%finalDir%\lib\%platformName%\static"
+REM libディレクトリコピー
+%fastcopyExe% %fastcopyMode% /cmd=diff /include="*.lib" "install\lib" /to="%finalDir%\lib\%platformName%"
 
-rem PythonLibのコピー
-%fastcopyExe% %fastcopyMode% /cmd=diff /include="python*.lib" /exclude="python3.lib"  "%anacondaDir%\libs" /to="%finalDir%\lib\%platformName%"
+REM PythonLibのコピー
+%fastcopyExe% %fastcopyMode% /cmd=diff /include="python*.lib" /exclude="python3.lib" "%pythonDir%\libs" /to="%finalDir%\lib\%platformName%"
 
 if /%configType%==/Release (
-	rem Caffe.exeコピー
-	%fastcopyExe% %fastcopyMode% /cmd=diff /include="*.exe;python*.dll" "install\bin" /to="%finalDir%\etc"
-	rem Pythonコピー
+	REM Caffe.exeコピー
+	%fastcopyExe% %fastcopyMode% /cmd=diff /include="*.exe" "install\bin" /to="%finalDir%\etc"
+	REM PythonDLLのコピー
+	if exist "%pythonDir%\python35.dll" (
+		%fastcopyExe% %fastcopyMode% /cmd=diff "%pythonDir%\python35.dll" /to="%finalDir%\etc"
+	) else if exist "%pythonDir%\python36.dll" (
+		%fastcopyExe% %fastcopyMode% /cmd=diff "%pythonDir%\python36.dll" /to="%finalDir%\etc"
+	)
+	REM Pythonコピー
 	%fastcopyExe% %fastcopyMode% /cmd=diff /exclude="*.dll" "install\python" /to="%finalDir%\python"
-	rem 依存DLLのコピー
-	%fastcopyExe% %fastcopyMode% /cmd=diff "%finalDir%\..\..\CUDA\bin\cublas64_*.dll" /to="%finalDir%\etc"
-	%fastcopyExe% %fastcopyMode% /cmd=diff "%finalDir%\..\..\CUDA\bin\cublas64_*.dll" /to="%finalDir%\python\caffe"
-	%fastcopyExe% %fastcopyMode% /cmd=diff "%finalDir%\..\..\CUDA\bin\cudart64_*.dll" /to="%finalDir%\etc"
-	%fastcopyExe% %fastcopyMode% /cmd=diff "%finalDir%\..\..\CUDA\bin\cudart64_*.dll" /to="%finalDir%\python\caffe"
-	%fastcopyExe% %fastcopyMode% /cmd=diff "%finalDir%\..\..\CUDA\bin\curand64_*.dll" /to="%finalDir%\etc"
-	%fastcopyExe% %fastcopyMode% /cmd=diff "%finalDir%\..\..\CUDA\bin\curand64_*.dll" /to="%finalDir%\python\caffe"
-	%fastcopyExe% %fastcopyMode% /cmd=diff "%finalDir%\..\..\CUDA\bin\cudnn64_*.dll" /to="%finalDir%\etc"
-	%fastcopyExe% %fastcopyMode% /cmd=diff "%finalDir%\..\..\CUDA\bin\cudnn64_*.dll" /to="%finalDir%\python\caffe"
-	%fastcopyExe% %fastcopyMode% /cmd=diff "%finalDir%\..\..\OpenBLAS\bin\%platformName%\lib*.dll" /to="%finalDir%\etc"
-	%fastcopyExe% %fastcopyMode% /cmd=diff "%finalDir%\..\..\OpenBLAS\bin\%platformName%\lib*.dll" /to="%finalDir%\python\caffe"
-	%fastcopyExe% %fastcopyMode% /cmd=diff "%finalDir%\..\OpenCV\bin\%platformName%\opencv_ffmpeg*.dll" /to="%finalDir%\etc"
-	%fastcopyExe% %fastcopyMode% /cmd=diff "%finalDir%\..\OpenCV\bin\%platformName%\opencv_ffmpeg*.dll" /to="%finalDir%\python\caffe"
-	%fastcopyExe% %fastcopyMode% /cmd=diff "%finalDir%\..\TBB\bin\%platformName%\tbb.dll" /to="%finalDir%\etc"
-	%fastcopyExe% %fastcopyMode% /cmd=diff "%finalDir%\..\TBB\bin\%platformName%\tbb.dll" /to="%finalDir%\python\caffe"
+	for /f "delims=" %%f in ( 'dir "%finalDir%\python\caffe" /a-D /B ^| findstr ".*pyd$"' ) do set origFile=%%f
+	set newFile=!origFile:caffe_static=caffe!
+	ren "%finalDir%\python\caffe\!origFile!" "!newFile!"
 )
 
 exit /b
