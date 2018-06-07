@@ -29,13 +29,17 @@
     #ifdef _MSC_VER
         #define CAFFE_MSVC_ALL_WARNING_PUSH __pragma(warning(push, 0))
         #define CAFFE_MSVC_WARNING_POP __pragma(warning(pop))
+        #define CAFFE_MSVC_WARNING_DISABLE(num) __pragma(warning(disable : num))
     #else
         #define CAFFE_MSVC_ALL_WARNING_PUSH
         #define CAFFE_MSVC_WARNING_POP
+        #define CAFFE_MSVC_WARNING_DISABLE(num) __pragma(warning(disable : num))
     #endif
 
     // 全ての警告を抑制
     CAFFE_MSVC_ALL_WARNING_PUSH
+    // 装飾された名前の長さが限界警告対策
+    CAFFE_MSVC_WARNING_DISABLE(4503)
 
     // C4996警告対策
     #ifndef _CRT_SECURE_NO_WARNINGS
@@ -50,18 +54,6 @@
         #undef _CRT_SECURE_NO_WARNINGS
     #endif
 
-    // STRICT対策
-    #ifdef STRICT
-        #pragma push_macro("STRICT")
-        #undef STRICT
-        #define __FLAG_PUSH__
-    #endif
-    #include <caffe/proto/caffe.pb.h>
-    #ifdef __FLAG_PUSH__
-        #pragma pop_macro("STRICT")
-        #undef __FLAG_PUSH__
-    #endif
-
     // 警告抑制解除
     CAFFE_MSVC_WARNING_POP
 
@@ -70,22 +62,18 @@
 #ifndef _LIB
     // サフィックス設定
     #ifdef CAFFE_USE_DEBUG
-        #define __CAFFESET_DBG_SUFFIX__ "-d"
-        #define __CAFFESET_DBG_SUFFIX_2__ "d"
+        #define __CAFFESET_DBG_SUFFIX__ "d"
         #define __CAFFESET_DBG_HDF5_SUFFIX__ "_D"
     #else
         #define __CAFFESET_DBG_SUFFIX__
-        #define __CAFFESET_DBG_SUFFIX_2__
         #define __CAFFESET_DBG_HDF5_SUFFIX__
     #endif
 
     // サフィックス設定2
     #ifdef CAFFE_DYN_LINK
-        #define __CAFFESET_LINK_PATH__
         #define __CAFFESET_STATIC_SUFFIX__
         #define __CAFFESET_STATIC_HDF5_PREFIX__
     #else
-        #define __CAFFESET_LINK_PATH__ "static/"
         #define __CAFFESET_STATIC_SUFFIX__ "_static"
         #define __CAFFESET_STATIC_HDF5_PREFIX__ "lib"
 
@@ -93,22 +81,22 @@
     #endif
 
     // Caffe
-    #pragma comment(lib, __CAFFESET_LINK_PATH__ "caffe" __CAFFESET_DBG_SUFFIX__ ".lib")
+    #pragma comment(lib, "caffe" __CAFFESET_STATIC_SUFFIX__ __CAFFESET_DBG_SUFFIX__ ".lib")
 
     // gflags
-    #pragma comment(lib, "gflags" __CAFFESET_STATIC_SUFFIX__ __CAFFESET_DBG_SUFFIX_2__ ".lib")
+    #pragma comment(lib, "gflags" __CAFFESET_STATIC_SUFFIX__ __CAFFESET_DBG_SUFFIX__ ".lib")
 
     // glog
-    #pragma comment(lib, __CAFFESET_LINK_PATH__ "glog" __CAFFESET_DBG_SUFFIX_2__ ".lib")
+    #pragma comment(lib, "glog" __CAFFESET_STATIC_SUFFIX__ __CAFFESET_DBG_SUFFIX__ ".lib")
 
     // LevelDB
-    #pragma comment(lib, __CAFFESET_LINK_PATH__ "leveldb" __CAFFESET_DBG_SUFFIX_2__ ".lib")
+    #pragma comment(lib, "leveldb" __CAFFESET_STATIC_SUFFIX__ __CAFFESET_DBG_SUFFIX__ ".lib")
 
     // lmdb
-    #pragma comment(lib, __CAFFESET_LINK_PATH__ "lmdb" __CAFFESET_DBG_SUFFIX_2__ ".lib")
+    #pragma comment(lib, "lmdb" __CAFFESET_STATIC_SUFFIX__ __CAFFESET_DBG_SUFFIX__ ".lib")
 
     // Snappy
-    #pragma comment(lib, "snappy" __CAFFESET_STATIC_SUFFIX__ __CAFFESET_DBG_SUFFIX_2__ ".lib")
+    #pragma comment(lib, "snappy" __CAFFESET_STATIC_SUFFIX__ __CAFFESET_DBG_SUFFIX__ ".lib")
 
     // HDF5
     #pragma comment(lib, __CAFFESET_STATIC_HDF5_PREFIX__ "hdf5" __CAFFESET_DBG_HDF5_SUFFIX__ ".lib")
@@ -128,7 +116,7 @@
 
     #if !defined(CAFFE_DYN_LINK) && !defined(__CAFFE_NO_INCLUDE__)
         // Caffeの追加ライブラリ
-        #pragma comment(lib, __CAFFESET_LINK_PATH__ "caffeproto" __CAFFESET_DBG_SUFFIX__ ".lib")
+        #pragma comment(lib, "caffeproto" __CAFFESET_STATIC_SUFFIX__ __CAFFESET_DBG_SUFFIX__ ".lib")
         // Boost.Pythonライブラリ
         CAFFE_MSVC_ALL_WARNING_PUSH
         #define BOOST_LIB_NAME boost_python3
