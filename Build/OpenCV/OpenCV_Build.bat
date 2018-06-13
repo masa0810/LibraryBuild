@@ -2,24 +2,24 @@
 setlocal enabledelayedexpansion
 
 REM FastCopy
-set fastcopyPath=FastCopy341_x64\FastCopy.exe
+set fastcopyPath="C:\Program Files\FastCopy\FastCopy.exe"
 
-REM FastCopyãƒ¢ãƒ¼ãƒ‰
+REM FastCopyƒ‚[ƒh
 set fastcopyMode=/force_close
 
 REM ninja
-set ninjaPath=Ninja\ninja.exe
+set ninjaPath="E:\Shared\Software\Ninja\ninja.exe"
 
-REM ãƒ“ãƒ«ãƒ‰ãƒãƒƒãƒ•ã‚¡
+REM ƒrƒ‹ƒhƒoƒbƒtƒ@
 set buildBuf=C:\Library\Temp
 
-REM ãƒãƒ¼ã‚¸ãƒ§ãƒ³è¨­å®š
+REM ƒo[ƒWƒ‡ƒ“İ’è
 set openCvVersion=3.4.1
 
-REM ä¸¦åˆ—ãƒ“ãƒ«ãƒ‰æ•°
+REM •À—ñƒrƒ‹ƒh”
 set numOfParallel=%NUMBER_OF_PROCESSORS%
 
-REM å¼•æ•°è§£æ
+REM ˆø”‰ğÍ
 if /%1==/install (
 	set buildType=install
 	if /%2==/avx (
@@ -39,46 +39,43 @@ if /%1==/install (
 	set flagAvx=
 )
 
-REM ãƒ“ãƒ«ãƒ‰æ¡ä»¶è¡¨ç¤º
+REM ƒrƒ‹ƒhğŒ•\¦
 echo build type : %buildType%
 
-REM ç¾åœ¨ã®ãƒ‘ã‚¹ã®ä¿æŒ
+REM Œ»İ‚ÌƒpƒX‚Ì•Û
 for /f "delims=" %%f in ( 'cd' ) do set currentPath=%%f
 
-REM ãƒãƒƒãƒãƒ•ã‚¡ã‚¤ãƒ«ã®å ´æ‰€
+REM ƒoƒbƒ`ƒtƒ@ƒCƒ‹‚ÌêŠ
 set batchPath=%~dp0
 
-REM ã‚½ãƒ¼ã‚¹ç½®ãå ´
+REM ƒ\[ƒX’u‚«ê
 cd /d "%batchPath%..\..\"
 for /f "delims=" %%f in ( 'cd' ) do set sourceDir=%%f
 cd /d "%currentPath%"
 
-REM FastCopyãƒ‘ã‚¹ä½œæˆ
-set fastcopyExe="%sourceDir%\Build\Tools\%fastcopyPath%"
-REM FastCopyãƒ‘ã‚¹è¡¨ç¤º
+REM FastCopyƒpƒXì¬
+set fastcopyExe=%fastcopyPath%
+REM FastCopyƒpƒX•\¦
 echo FastCopy : %fastcopyExe%
 
 REM Ninja
-set ninjaExe="%sourceDir%\Build\Tools\%ninjaPath%"
-REM Ninjaãƒ‘ã‚¹è¡¨ç¤º
+set ninjaExe=%ninjaPath%
+REM NinjaƒpƒX•\¦
 echo Ninja : %ninjaExe%
 
-REM Ninjaãƒ•ã‚¡ã‚¤ãƒ«ãƒã‚§ãƒƒã‚¯
-call "%sourceDir%\Build\Ninja\Ninja_Build.bat"
-
-REM CUDAãƒ‘ã‚¹
+REM CUDAƒpƒX
 set cudaPath=%sourceDir%\CUDA
-REM CUDAãƒ‘ã‚¹è¡¨ç¤º
+REM CUDAƒpƒX•\¦
 echo CUDA : %cudaPath%
 
-REM ã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ¢ãƒ‡ãƒ«åˆ‡ã‚Šæ›¿ãˆ
+REM ƒAƒhƒŒƒXƒ‚ƒfƒ‹Ø‚è‘Ö‚¦
 if /%Platform%==/ (
 	set platformName=Win32
 ) else (
 	set platformName=x64
 )
 
-REM Visual Studioãƒãƒ¼ã‚¸ãƒ§ãƒ³åˆ‡ã‚Šæ›¿ãˆ
+REM Visual Studioƒo[ƒWƒ‡ƒ“Ø‚è‘Ö‚¦
 if /%VisualStudioVersion%==/11.0 (
 	set vsVersion=vs2012
 	set vcVersion=110
@@ -113,73 +110,73 @@ goto :EOF
 
 :Main
 
-REM Staticãƒ“ãƒ«ãƒ‰/Dynamicãƒ“ãƒ«ãƒ‰åˆ‡ã‚Šæ›¿ãˆ
+REM Staticƒrƒ‹ƒh/Dynamicƒrƒ‹ƒhØ‚è‘Ö‚¦
 if /%1==/shared (
 	set linkType=Shared
 ) else (
 	set linkType=Static
 )
 
-REM Release/Debugåˆ‡ã‚Šæ›¿ãˆ
+REM Release/DebugØ‚è‘Ö‚¦
 if /%2==/debug (
 	set configType=Debug
 ) else (
 	set configType=Release
 )
 
-REM Configurationå®Ÿè¡Œ
+REM ConfigurationÀs
 call %batchPath%OpenCV_Configuration.bat %1 %2 %flagAvx%
 
-REM ãƒ“ãƒ«ãƒ‰ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+REM ƒrƒ‹ƒhƒfƒBƒŒƒNƒgƒŠ
 set buildDir=%buildBuf%\%vsVersion%\%platformName%\%configType%\%linkType%\OpenCV
 
-REM ãƒ“ãƒ«ãƒ‰ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªè¡¨ç¤º
+REM ƒrƒ‹ƒhƒfƒBƒŒƒNƒgƒŠ•\¦
 echo build directory : %buildDir%
 
-REM CUDAãƒ‘ã‚¹å†è¨­å®š(â€» Configurationã‚ˆã‚Šã‚‚å¾Œã§ã‚„ã‚‹)
+REM CUDAƒpƒXÄİ’è(¦ Configuration‚æ‚è‚àŒã‚Å‚â‚é)
 if not /"%cudaPath%"==/"%CUDA_PATH%" (
 	set CUDA_PATH=%cudaPath%
 )
 
-REM ãƒ“ãƒ«ãƒ‰ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã¸ç§»å‹•
+REM ƒrƒ‹ƒhƒfƒBƒŒƒNƒgƒŠ‚ÖˆÚ“®
 cd /d "%buildDir%"
 %ninjaExe% %buildType% -j %numOfParallel%
 call :ErrorCheck
 
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠ
 set finalDir=%buildBuf%\Final\v%vcVersion%\OpenCV
 
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«
+REM ƒCƒ“ƒXƒg[ƒ‹
 if /%buildType%==/install (
-	REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªè¡¨ç¤º
+	REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠ•\¦
 	echo install : %finalDir%
 
-	REM includeãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚³ãƒ”ãƒ¼
+	REM includeƒfƒBƒŒƒNƒgƒŠƒRƒs[
 	%fastcopyExe% %fastcopyMode% /cmd=diff /exclude="cvconfig.h" "install\include" /to="%finalDir%\"
 
-	REM å€‹åˆ¥ãƒ•ã‚¡ã‚¤ãƒ«ã‚³ãƒ”ãƒ¼
+	REM ŒÂ•Êƒtƒ@ƒCƒ‹ƒRƒs[
 	%fastcopyExe% %fastcopyMode% /cmd=diff "install\include\opencv2\cvconfig.h" /to="%finalDir%\include"
 
-	REM å€‹åˆ¥ãƒ•ã‚¡ã‚¤ãƒ«ãƒªãƒãƒ¼ãƒ 
+	REM ŒÂ•Êƒtƒ@ƒCƒ‹ƒŠƒl[ƒ€
 	if exist "%finalDir%\include\cvconfig_%platformName%_%linkType%_%configType%.h" (
 		del "%finalDir%\include\cvconfig_%platformName%_%linkType%_%configType%.h"
 	)
 	ren "%finalDir%\include\cvconfig.h" cvconfig_%platformName%_%linkType%_%configType%.h
 
-	REM bin&libãƒ•ã‚¡ã‚¤ãƒ«ã‚³ãƒ”ãƒ¼
+	REM bin&libƒtƒ@ƒCƒ‹ƒRƒs[
 	if /%linkType%==/Shared (
 		call :Shared
 	) else (
 		call :Static
 	)
 
-	REM ã‚»ãƒƒãƒˆãƒ˜ãƒƒãƒ€ã®ã‚³ãƒ”ãƒ¼
+	REM ƒZƒbƒgƒwƒbƒ_‚ÌƒRƒs[
 	%fastcopyExe% %fastcopyMode% /cmd=diff "%batchPath%\files\opencvset.h" /to="%finalDir%\include\"
 
-	REM Copyãƒãƒƒãƒã®ã‚³ãƒ”ãƒ¼
+	REM Copyƒoƒbƒ`‚ÌƒRƒs[
 	%fastcopyExe% %fastcopyMode% /cmd=diff "%batchPath%\files\OpenCvCopy.bat" /to="%finalDir%\"
 
-	REM ãƒãƒ¼ã‚¸ãƒ§ãƒ³ç•ªå·ãƒ•ã‚¡ã‚¤ãƒ«è¿½åŠ 
+	REM ƒo[ƒWƒ‡ƒ“”Ô†ƒtƒ@ƒCƒ‹’Ç‰Á
 	type nul > %finalDir%\OpenCV_%openCvVersion%
 )
 
@@ -189,10 +186,10 @@ goto :EOF
 
 :Shared
 
-REM binãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚³ãƒ”ãƒ¼
+REM binƒfƒBƒŒƒNƒgƒŠƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff /include="*.dll;*.pdb" /exclude="opencv_waldboost_detector*" "bin" /to="%finalDir%\bin\%platformName%"
 
-REM libãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚³ãƒ”ãƒ¼
+REM libƒfƒBƒŒƒNƒgƒŠƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff /include="opencv_*.lib" "lib" /to="%finalDir%\lib\%platformName%"
 
 exit /b
@@ -201,13 +198,13 @@ goto :EOF
 
 :Static
 
-REM binãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚³ãƒ”ãƒ¼
+REM binƒfƒBƒŒƒNƒgƒŠƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff /include="*.dll" "bin" /to="%finalDir%\bin\%platformName%"
 
-REM libãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚³ãƒ”ãƒ¼
+REM libƒfƒBƒŒƒNƒgƒŠƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff /include="opencv_*.lib;opencv_*.pdb" /exclude="opencv_python3*" "lib" /to="%finalDir%\lib\%platformName%"
 
-REM 3rdpartyãƒ©ã‚¤ãƒ–ãƒ©ãƒªã‚³ãƒ”ãƒ¼
+REM 3rdpartyƒ‰ƒCƒuƒ‰ƒŠƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff /include="*.lib;*.pdb" "3rdparty\lib" /to="%finalDir%\lib\%platformName%"
 %fastcopyExe% %fastcopyMode% /cmd=diff "3rdparty\ippicv\ippicv_win\lib\intel64\ippicvmt.lib" /to="%finalDir%\lib\%platformName%\"
 

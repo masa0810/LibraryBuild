@@ -1,5 +1,5 @@
 @echo off
-REM ãƒ•ã‚¡ã‚¤ãƒ«ã‚³ãƒ”ãƒ¼(å¼•æ•°1:ãƒ“ãƒ«ãƒ‰ã‚¿ã‚¤ãƒ—ã€å¼•æ•°2:ã‚¢ãƒ¼ã‚­ãƒ†ã‚¯ãƒãƒ£ã€å¼•æ•°3:å‡ºåŠ›ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª)
+REM ƒtƒ@ƒCƒ‹ƒRƒs[(ˆø”1:ƒrƒ‹ƒhƒ^ƒCƒvAˆø”2:ƒA[ƒLƒeƒNƒ`ƒƒAˆø”3:o—ÍƒfƒBƒŒƒNƒgƒŠ)
 
 setlocal ENABLEDELAYEDEXPANSION
 
@@ -29,7 +29,7 @@ for %%f in ( cublas64_%cudaVer%.dll cudart64_%cudaVer%.dll cufft64_%cudaVer%.dll
 
 goto :EOF
 
-REM ãƒ“ãƒ«ãƒ‰ã‚¿ã‚¤ãƒ—åˆ¤å®š(å¼•æ•°1:ãƒ“ãƒ«ãƒ‰ã‚¿ã‚¤ãƒ—ã€å¼•æ•°2:å‡ºåŠ›ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã€å¼•æ•°3:ã‚³ãƒ”ãƒ¼å…ƒãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã€å¼•æ•°4:ãƒ•ã‚¡ã‚¤ãƒ«åã€å¼•æ•°5:æ‹¡å¼µå­ã€å¼•æ•°6:ã‚µãƒ•ã‚£ãƒƒã‚¯ã‚¹æ–‡å­—åˆ—)
+REM ƒrƒ‹ƒhƒ^ƒCƒv”»’è(ˆø”1:ƒrƒ‹ƒhƒ^ƒCƒvAˆø”2:o—ÍƒfƒBƒŒƒNƒgƒŠAˆø”3:ƒRƒs[Œ³ƒfƒBƒŒƒNƒgƒŠAˆø”4:ƒtƒ@ƒCƒ‹–¼Aˆø”5:Šg’£ŽqAˆø”6:ƒTƒtƒBƒbƒNƒX•¶Žš—ñ)
 :CheckConfig
 
 if /%1==/Debug (
@@ -42,7 +42,7 @@ call :FileCopy %2 %3 %4%suffix%.%5
 exit /b
 goto :EOF
 
-REM ãƒ•ã‚¡ã‚¤ãƒ«ã‚³ãƒ”ãƒ¼(å¼•æ•°1:å‡ºåŠ›ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã€å¼•æ•°2:ã‚³ãƒ”ãƒ¼å…ƒãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã€å¼•æ•°3:ãƒ•ã‚¡ã‚¤ãƒ«å)
+REM ƒtƒ@ƒCƒ‹ƒRƒs[(ˆø”1:o—ÍƒfƒBƒŒƒNƒgƒŠAˆø”2:ƒRƒs[Œ³ƒfƒBƒŒƒNƒgƒŠAˆø”3:ƒtƒ@ƒCƒ‹–¼)
 :FileCopy
 
 set dstPath=%~f1

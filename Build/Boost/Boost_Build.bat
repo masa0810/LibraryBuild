@@ -2,29 +2,26 @@
 setlocal
 
 REM FastCopy
-set fastcopyPath=FastCopy341_x64\FastCopy.exe
+set fastcopyPath="C:\Program Files\FastCopy\FastCopy.exe"
 
-REM FastCopyãƒ¢ãƒ¼ãƒ‰
+REM FastCopyƒ‚[ƒh
 set fastcopyMode=/force_close
 
-REM ãƒ“ãƒ«ãƒ‰ãƒãƒƒãƒ•ã‚¡
+REM ƒrƒ‹ƒhƒoƒbƒtƒ@
 set buildBuf=C:\Library\Temp
 
-REM ãƒ©ã‚¤ãƒ–ãƒ©ãƒªãƒ‘ã‚¹
+REM ƒ‰ƒCƒuƒ‰ƒŠƒpƒX
 set boostDir=boost
-set bzip2Dir=bzip2
-set icuDir=icu4c
-set zlibDir=zlib
 set pythonDir=C:\Library\Python
 
-REM ãƒãƒ¼ã‚¸ãƒ§ãƒ³è¨­å®š
+REM ƒo[ƒWƒ‡ƒ“Ý’è
 set boostVersion=1.67
 set pythonVersion=3.6
 
-REM ä¸¦åˆ—ãƒ“ãƒ«ãƒ‰æ•°
+REM •À—ñƒrƒ‹ƒh”
 set numOfParallel=%NUMBER_OF_PROCESSORS%
 
-REM å¼•æ•°è§£æž
+REM ˆø”‰ðÍ
 if /%1==/install (
 	set buildType=install
 	if /%2==/avx (
@@ -44,47 +41,32 @@ if /%1==/install (
 	set avxType=Disable
 )
 
-REM ãƒ“ãƒ«ãƒ‰æ¡ä»¶è¡¨ç¤º
+REM ƒrƒ‹ƒhðŒ•\Ž¦
 echo build type : %buildType%
 echo avx type : %avxType%
 
-REM ç¾åœ¨ã®ãƒ‘ã‚¹ã®ä¿æŒ
+REM Œ»Ý‚ÌƒpƒX‚Ì•ÛŽ
 for /f "delims=" %%f in ( 'cd' ) do set currentPath=%%f
 
-REM ãƒãƒƒãƒãƒ•ã‚¡ã‚¤ãƒ«ã®å ´æ‰€
+REM ƒoƒbƒ`ƒtƒ@ƒCƒ‹‚ÌêŠ
 set batchPath=%~dp0
 
-REM ã‚½ãƒ¼ã‚¹ç½®ãå ´
+REM ƒ\[ƒX’u‚«ê
 cd /d "%batchPath%..\..\"
 for /f "delims=" %%f in ( 'cd' ) do set sourceDir=%%f
 cd /d "%currentPath%"
 
-REM FastCopyãƒ‘ã‚¹ä½œæˆ
-set fastcopyExe="%sourceDir%\Build\Tools\%fastcopyPath%"
-REM FastCopyãƒ‘ã‚¹è¡¨ç¤º
+REM FastCopyƒpƒXì¬
+set fastcopyExe=%fastcopyPath%
+REM FastCopyƒpƒX•\Ž¦
 echo FastCopy : %fastcopyExe%
 
-REM boostãƒ‘ã‚¹
+REM boostƒpƒX
 set boostPath=%sourceDir%\%boostDir%
-REM boostãƒ‘ã‚¹è¡¨ç¤º
+REM boostƒpƒX•\Ž¦
 echo Boost : %boostPath%
 
-REM bzip2ãƒ‘ã‚¹
-set bzip2Path=%sourceDir%\%bzip2Dir%
-REM bzip2ãƒ‘ã‚¹è¡¨ç¤º
-echo bzip2 : %bzip2Path%
-
-REM icuãƒ‘ã‚¹
-set icuPath=%sourceDir%\%icuDir%
-REM icuãƒ‘ã‚¹è¡¨ç¤º
-echo icu : %icuPath%
-
-REM zlibãƒ‘ã‚¹
-set zlibPath=%sourceDir%\%zlibDir%
-REM zlibãƒ‘ã‚¹è¡¨ç¤º
-echo zlib : %zlibPath%
-
-REM ã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ¢ãƒ‡ãƒ«åˆ‡ã‚Šæ›¿ãˆ
+REM ƒAƒhƒŒƒXƒ‚ƒfƒ‹Ø‚è‘Ö‚¦
 if /%Platform%==/ (
 	set addmodel=86
 	set platformName=Win32
@@ -93,7 +75,7 @@ if /%Platform%==/ (
 	set platformName=x64
 )
 
-REM Visual Studioãƒãƒ¼ã‚¸ãƒ§ãƒ³åˆ‡ã‚Šæ›¿ãˆ
+REM Visual Studioƒo[ƒWƒ‡ƒ“Ø‚è‘Ö‚¦
 if /%VisualStudioVersion%==/11.0 (
 	set vsVersion=vs2012
 	set vcVersion=110
@@ -113,7 +95,7 @@ if /%VisualStudioVersion%==/11.0 (
 	set vsVersion=vs2017
 	set vcVersion=141
 	set toolsetName=msvc-14.1
-	set cppver="/std:c++14"
+	set cppver="/std:c++17"
 ) else (
 	set vsVersion=vs2010
 	set vcVersion=100
@@ -121,24 +103,24 @@ if /%VisualStudioVersion%==/11.0 (
 	set cppver
 )
 
-REM ãƒ“ãƒ«ãƒ‰ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+REM ƒrƒ‹ƒhƒfƒBƒŒƒNƒgƒŠ
 set buildPath=%buildBuf%\%vsVersion%\%platformName%\Boost
 set buildDir=%buildPath%\Tmp
 set stageDir=%buildPath%\Stage
 
-REM Boostãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã«ç§»å‹•
+REM BoostƒfƒBƒŒƒNƒgƒŠ‚ÉˆÚ“®
 cd /d "%boostPath%"
 
-REM b2ãƒ•ã‚¡ã‚¤ãƒ«ä½œæˆ
+REM b2ƒtƒ@ƒCƒ‹ì¬
 set pythonPath=%pythonDir:\=\\%
 if not exist b2.exe (
-	REM ãƒãƒƒãƒå®Ÿè¡Œ
+	REM ƒoƒbƒ`ŽÀs
 	call bootstrap.bat
-	REM pythonè¨­å®š
+	REM pythonÝ’è
 	echo using python : %pythonVersion% : %pythonPath% : %pythonPath%\\include : %pythonPath%\\libs ; >> project-config.jam
 )
 
-REM å¼•æ•°ä½œæˆ
+REM ˆø”ì¬
 if /%avxType%==/Enable (
 	REM set instructionOptionOrig="instruction-set=sandy-bridge"
 	set instructionOptionOrig=""
@@ -148,7 +130,7 @@ if /%avxType%==/Enable (
 )
 set instructionOption=%instructionOptionOrig:"=%
 
-REM ãƒ“ãƒ«ãƒ‰
+REM ƒrƒ‹ƒh
 b2.exe ^
 %buildType% ^
 toolset=%toolsetName% ^
@@ -161,9 +143,6 @@ embed-manifest=off ^
 debug-symbols=on ^
 cxxflags=%cppver% ^
 -j%numOfParallel% ^
--sBZIP2_SOURCE="%bzip2Path%" ^
--sZLIB_SOURCE="%zlibPath%" ^
--sICU_PATH="%icuPath%" ^
 --build-dir="%buildDir%" ^
 --prefix="%stageDir%" ^
 --stagedir="%stageDir%" ^
@@ -171,31 +150,31 @@ cxxflags=%cppver% ^
 --without-mpi %instructionOption%
 call :ErrorCheck
 
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠ
 set finalDir=%buildBuf%\Final\v%vcVersion%\Boost
 
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«
+REM ƒCƒ“ƒXƒg[ƒ‹
 if /%buildType%==/install (
-	REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªè¡¨ç¤º
+	REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠ•\Ž¦
 	echo install : %finalDir%
 
-	REM includeãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚³ãƒ”ãƒ¼
+	REM includeƒfƒBƒŒƒNƒgƒŠƒRƒs[
 	for /f %%d in ( 'dir /a:D /B "%stageDir%\include"' ) do (
 		%fastcopyExe% %fastcopyMode% /cmd=diff "%stageDir%\include\%%d" /to="%finalDir%\include"
 	)
 
-	REM dllã‚³ãƒ”ãƒ¼
+	REM dllƒRƒs[
 	%fastcopyExe% %fastcopyMode% /cmd=diff /include="*.dll" "%stageDir%\lib" /to="%finalDir%\bin\%platformName%"
 
-	REM libã‚³ãƒ”ãƒ¼
+	REM libƒRƒs[
 	%fastcopyExe% %fastcopyMode% /cmd=diff /include="*.lib" "%stageDir%\lib" /to="%finalDir%\lib\%platformName%"
 
-	REM pdbã‚³ãƒ”ãƒ¼
+	REM pdbƒRƒs[
 	for /f "delims=" %%f in ( 'dir "%buildDir%" /a-D /B /S ^| findstr "boost[^\\]*%vcVersion%[^\\]*pdb$"' ) do (
 		copy "%%f" "%finalDir%\bin\%platformName%"
 	)
 
-	REM ãƒãƒ¼ã‚¸ãƒ§ãƒ³ç•ªå·ãƒ•ã‚¡ã‚¤ãƒ«è¿½åŠ 
+	REM ƒo[ƒWƒ‡ƒ“”Ô†ƒtƒ@ƒCƒ‹’Ç‰Á
 	type nul > %finalDir%\Boost_%boostVersion%
 )
 

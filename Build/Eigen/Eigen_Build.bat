@@ -2,68 +2,65 @@
 setlocal
 
 REM CMake
-set cmakePath=CMake\bin\cmake.exe
+set cmakePath="C:\Program Files\CMake\bin\cmake.exe"
 
 REM ninja
-set ninjaPath=Ninja\ninja.exe
+set ninjaPath="E:\Shared\Software\Ninja\ninja.exe"
 
 REM FastCopy
-set fastcopyPath=FastCopy341_x64\FastCopy.exe
+set fastcopyPath="C:\Program Files\FastCopy\FastCopy.exe"
 
-REM FastCopyãƒ¢ãƒ¼ãƒ‰
+REM FastCopyƒ‚[ƒh
 set fastcopyMode=/force_close
 
-REM ãƒ“ãƒ«ãƒ‰ãƒãƒƒãƒ•ã‚¡
+REM ƒrƒ‹ƒhƒoƒbƒtƒ@
 set buildBuf=C:\Library\Temp
 
-REM ãƒ©ã‚¤ãƒ–ãƒ©ãƒªãƒ‘ã‚¹
+REM ƒ‰ƒCƒuƒ‰ƒŠƒpƒX
 set eigenDir=Eigen
 
-REM ãƒãƒ¼ã‚¸ãƒ§ãƒ³è¨­å®š
+REM ƒo[ƒWƒ‡ƒ“Ý’è
 set eigenVersion=3.3.4
 
-REM ç¾åœ¨ã®ãƒ‘ã‚¹ã®ä¿æŒ
+REM Œ»Ý‚ÌƒpƒX‚Ì•ÛŽ
 for /f "delims=" %%f in ( 'cd' ) do set currentPath=%%f
 
-REM ãƒãƒƒãƒãƒ•ã‚¡ã‚¤ãƒ«ã®å ´æ‰€
+REM ƒoƒbƒ`ƒtƒ@ƒCƒ‹‚ÌêŠ
 set batchPath=%~dp0
 
-REM ã‚½ãƒ¼ã‚¹ç½®ãå ´
+REM ƒ\[ƒX’u‚«ê
 cd /d "%batchPath%..\..\"
 for /f "delims=" %%f in ( 'cd' ) do set sourceDir=%%f
 cd /d "%currentPath%"
 
-REM CMakeãƒ‘ã‚¹ä½œæˆ
-set cmakeExe="%sourceDir%\Build\Tools\%cmakePath%"
-REM CMakeãƒ‘ã‚¹è¡¨ç¤º
+REM CMakeƒpƒXì¬
+set cmakeExe=%cmakePath%
+REM CMakeƒpƒX•\Ž¦
 echo CMake : %cmakeExe%
 
 REM Ninja
-set ninjaExe="%sourceDir%\Build\Tools\%ninjaPath%"
-REM Ninjaãƒ‘ã‚¹è¡¨ç¤º
+set ninjaExe=%ninjaPath%
+REM NinjaƒpƒX•\Ž¦
 echo Ninja : %ninjaExe%
 
-REM Ninjaãƒ•ã‚¡ã‚¤ãƒ«ãƒã‚§ãƒƒã‚¯
-call "%sourceDir%\Build\Ninja\Ninja_Build.bat"
-
-REM FastCopyãƒ‘ã‚¹ä½œæˆ
-set fastcopyExe="%sourceDir%\Build\Tools\%fastcopyPath%"
-REM FastCopyãƒ‘ã‚¹è¡¨ç¤º
+REM FastCopyƒpƒXì¬
+set fastcopyExe=%fastcopyPath%
+REM FastCopyƒpƒX•\Ž¦
 echo FastCopy : %fastcopyExe%
 
-REM Eigenãƒ‘ã‚¹
+REM EigenƒpƒX
 set eigenPath=%sourceDir%\%eigenDir%
-REM Eigenãƒ‘ã‚¹è¡¨ç¤º
+REM EigenƒpƒX•\Ž¦
 echo Eigen : %eigenPath%
 
-REM ã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ¢ãƒ‡ãƒ«åˆ‡ã‚Šæ›¿ãˆ
+REM ƒAƒhƒŒƒXƒ‚ƒfƒ‹Ø‚è‘Ö‚¦
 if /%Platform%==/ (
 	set platformName=Win32
 ) else (
 	set platformName=x64
 )
 
-REM Visual Studioãƒãƒ¼ã‚¸ãƒ§ãƒ³åˆ‡ã‚Šæ›¿ãˆ
+REM Visual Studioƒo[ƒWƒ‡ƒ“Ø‚è‘Ö‚¦
 if /%VisualStudioVersion%==/11.0 (
 	set vsVersion=vs2012
 ) else if /%VisualStudioVersion%==/12.0 (
@@ -76,40 +73,41 @@ if /%VisualStudioVersion%==/11.0 (
 	set vsVersion=vs2010
 )
 
-REM ãƒ“ãƒ«ãƒ‰ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+REM ƒrƒ‹ƒhƒfƒBƒŒƒNƒgƒŠ
 set buildDir=%buildBuf%\%vsVersion%\%platformName%\Eigen
-REM ãƒ“ãƒ«ãƒ‰ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªè¡¨ç¤º
+REM ƒrƒ‹ƒhƒfƒBƒŒƒNƒgƒŠ•\Ž¦
 echo build directory : %buildDir%
-REM ãƒ“ãƒ«ãƒ‰ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªç¢ºèª
+REM ƒrƒ‹ƒhƒfƒBƒŒƒNƒgƒŠŠm”F
 if not exist "%buildDir%" (
 	mkdir "%buildDir%"
 )
-REM ãƒ“ãƒ«ãƒ‰ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã¸ç§»å‹•
+REM ƒrƒ‹ƒhƒfƒBƒŒƒNƒgƒŠ‚ÖˆÚ“®
 cd /d "%buildDir%"
 
 %cmakeExe% "%eigenPath%" ^
 -G "Ninja" ^
 -DCMAKE_MAKE_PROGRAM=%ninjaExe:\=/% ^
+-DBUILD_TESTING=OFF ^
 -DCMAKE_BUILD_TYPE="Release" ^
 -DCMAKE_INSTALL_PREFIX="%buildDir:\=/%/install"
 
 %ninjaExe% install
 call :ErrorCheck
 
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠ
 set finalDir=%buildBuf%\Final\Eigen
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªè¡¨ç¤º
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠ•\Ž¦
 echo install : %finalDir%
 
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå‰Šé™¤
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠíœ
 if exist "%finalDir%" (
 	rd /S /Q "%finalDir%"
 )
 
-REM Eigenãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚³ãƒ”ãƒ¼
+REM EigenƒfƒBƒŒƒNƒgƒŠƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff /exclude="*.txt;*.md" "install\include\eigen3" /to="%finalDir%\include"
 
-REM ãƒãƒ¼ã‚¸ãƒ§ãƒ³ç•ªå·ãƒ•ã‚¡ã‚¤ãƒ«è¿½åŠ 
+REM ƒo[ƒWƒ‡ƒ“”Ô†ƒtƒ@ƒCƒ‹’Ç‰Á
 type nul > %finalDir%\Eigen_%eigenVersion%
 
 goto :EOF

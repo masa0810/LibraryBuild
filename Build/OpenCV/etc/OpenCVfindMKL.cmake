@@ -101,9 +101,14 @@ else()
 endif()
 
 if(${MKL_VERSION_STR} VERSION_GREATER "11.3.0" OR ${MKL_VERSION_STR} VERSION_EQUAL "11.3.0")
+    if(OpenCV_RUNTIME STREQUAL "vc15")
+        set(TBB_RUNTIME "vc14")
+    else()
+        set(TBB_RUNTIME ${OpenCV_RUNTIME})
+    endif()
     set(mkl_lib_find_paths
         ${MKL_ROOT_DIR}/lib
-        ${MKL_ROOT_DIR}/lib/${MKL_ARCH} ${MKL_ROOT_DIR}/../tbb/lib/${MKL_ARCH}/${OpenCV_RUNTIME})
+        ${MKL_ROOT_DIR}/lib/${MKL_ARCH} ${MKL_ROOT_DIR}/../tbb/lib/${MKL_ARCH}/${TBB_RUNTIME})
 
     set(mkl_lib_list "mkl_intel_${MKL_ARCH_SUFFIX}${MKL_POSTFIX}")
 

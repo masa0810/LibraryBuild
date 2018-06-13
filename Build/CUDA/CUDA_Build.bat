@@ -2,75 +2,75 @@
 setlocal
 
 REM FastCopy
-set fastcopyPath=FastCopy341_x64\FastCopy.exe
+set fastcopyPath="C:\Program Files\FastCopy\FastCopy.exe"
 
-REM FastCopyãƒ¢ãƒ¼ãƒ‰
+REM FastCopyƒ‚[ƒh
 set fastcopyMode=/force_close
 
-REM ãƒ“ãƒ«ãƒ‰ãƒãƒƒãƒ•ã‚¡
+REM ƒrƒ‹ƒhƒoƒbƒtƒ@
 set buildBuf=C:\Library\Temp
 
-REM ãƒ©ã‚¤ãƒ–ãƒ©ãƒªãƒ‘ã‚¹
+REM ƒ‰ƒCƒuƒ‰ƒŠƒpƒX
 set cudnnDir=cudnn
 
-REM ãƒãƒ¼ã‚¸ãƒ§ãƒ³è¨­å®š
+REM ƒo[ƒWƒ‡ƒ“Ý’è
 set cudaVersion=9.2patch1
 set cudnnVersion=7.1.4
 
-REM ç¾åœ¨ã®ãƒ‘ã‚¹ã®ä¿æŒ
+REM Œ»Ý‚ÌƒpƒX‚Ì•ÛŽ
 for /f "delims=" %%f in ( 'cd' ) do set currentPath=%%f
 
-REM ãƒãƒƒãƒãƒ•ã‚¡ã‚¤ãƒ«ã®å ´æ‰€
+REM ƒoƒbƒ`ƒtƒ@ƒCƒ‹‚ÌêŠ
 set batchPath=%~dp0
 
-REM ã‚½ãƒ¼ã‚¹ç½®ãå ´
+REM ƒ\[ƒX’u‚«ê
 cd /d "%batchPath%..\..\"
 for /f "delims=" %%f in ( 'cd' ) do set sourceDir=%%f
 cd /d "%currentPath%"
 
-REM FastCopyãƒ‘ã‚¹ä½œæˆ
-set fastcopyExe="%sourceDir%\Build\Tools\%fastcopyPath%"
-REM FastCopyãƒ‘ã‚¹è¡¨ç¤º
+REM FastCopyƒpƒXì¬
+set fastcopyExe=%fastcopyPath%
+REM FastCopyƒpƒX•\Ž¦
 echo FastCopy : %fastcopyExe%
 
-REM CUDAãƒ‘ã‚¹
+REM CUDAƒpƒX
 set cudaPath=%sourceDir%\CUDA
-REM CUDAãƒ‘ã‚¹è¡¨ç¤º
+REM CUDAƒpƒX•\Ž¦
 echo CUDA : %cudaPath%
 
-REM CUDAãƒ‘ã‚¹ç¢ºèª
+REM CUDAƒpƒXŠm”F
 if not exist %cudaPath% (
 	powershell -Command Start-Process -Wait -FilePath cmd.exe -Verb runas -ArgumentList '/c','"mklink /D ""%cudaPath%""" """%CUDA_PATH%"""'
 )
 
-REM CUDNNãƒ‘ã‚¹
+REM CUDNNƒpƒX
 set cudnnPath=%sourceDir%\%cudnnDir%
-REM CUDNNãƒ‘ã‚¹è¡¨ç¤º
+REM CUDNNƒpƒX•\Ž¦
 echo CUDNN : %cudnnPath%
 
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠ
 set finalDir=%buildBuf%\Final\CUDA
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªè¡¨ç¤º
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠ•\Ž¦
 echo install : %finalDir%
 
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå‰Šé™¤
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠíœ
 if exist "%finalDir%" (
 	rd /S /Q "%finalDir%"
 )
 
-REM includeãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚³ãƒ”ãƒ¼
+REM includeƒfƒBƒŒƒNƒgƒŠƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff "%cudaPath%\include" /to="%finalDir%\include"
 %fastcopyExe% %fastcopyMode% /cmd=diff "%cudnnPath%\include" /to="%finalDir%\include"
 
-REM libãƒ•ã‚¡ã‚¤ãƒ«ã‚³ãƒ”ãƒ¼
+REM libƒtƒ@ƒCƒ‹ƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff /include="*.lib" "%cudaPath%\lib\x64" /to="%finalDir%\lib\x64"
 %fastcopyExe% %fastcopyMode% /cmd=diff /include="*.lib" "%cudnnPath%\lib\x64" /to="%finalDir%\lib\x64"
 
-REM dllãƒ»pdbãƒ•ã‚¡ã‚¤ãƒ«ã‚³ãƒ”ãƒ¼
+REM dllEpdbƒtƒ@ƒCƒ‹ƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff /include="*.dll" /exclude="*32*" "%cudaPath%\bin" /to="%finalDir%\bin"
 %fastcopyExe% %fastcopyMode% /cmd=diff /include="*.dll" "%cudnnPath%\bin" /to="%finalDir%\bin"
 
-REM ãƒãƒ¼ã‚¸ãƒ§ãƒ³ç•ªå·ãƒ•ã‚¡ã‚¤ãƒ«è¿½åŠ 
+REM ƒo[ƒWƒ‡ƒ“”Ô†ƒtƒ@ƒCƒ‹’Ç‰Á
 type nul > %finalDir%\CUDA_%cudaVersion%
 type nul > %finalDir%\cuDNN_%cudnnVersion%
 

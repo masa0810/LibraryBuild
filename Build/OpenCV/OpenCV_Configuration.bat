@@ -2,22 +2,20 @@
 setlocal
 
 REM CMake
-set cmakePath=CMake\bin\cmake.exe
+set cmakePath="C:\Program Files\CMake\bin\cmake.exe"
 
 REM ninja
-set ninjaPath=Ninja\ninja.exe
+set ninjaPath="E:\Shared\Software\Ninja\ninja.exe"
 
-REM ãƒ©ã‚¤ãƒ–ãƒ©ãƒªãƒ‘ã‚¹
-set openBlasDir=OpenBLAS
+REM ƒ‰ƒCƒuƒ‰ƒŠƒpƒX
 set openCv3rdpartyDir=opencv_3rdparty
-set openCvContribDir=opencv_contrib
 set openCvDir=opencv
 set tbbDir=tbb
 set gstreamerDir=C:\Library\Gstreamer
 set intelLibraryDirOrig="C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows"
 set intelLibraryDir=%intelLibraryDirOrig:"=%
 
-REM Staticãƒ“ãƒ«ãƒ‰/Dynamicãƒ“ãƒ«ãƒ‰åˆ‡ã‚Šæ›¿ãˆ
+REM Staticƒrƒ‹ƒh/Dynamicƒrƒ‹ƒhØ‚è‘Ö‚¦
 if /%1==/shared (
 	set flagShared=ON
 	set linkType=Shared
@@ -38,7 +36,7 @@ if /%1==/shared (
 set glogFlagOrig="/DGLOG_NO_ABBREVIATED_SEVERITIES /DGOOGLE_GLOG_DLL_DECL= /DGOOGLE_GLOG_DLL_DECL_FOR_UNITTESTS="
 set glogFlag=%glogFlagOrig:"=%
 
-REM Release/Debugåˆ‡ã‚Šæ›¿ãˆ
+REM Release/DebugØ‚è‘Ö‚¦
 if /%2==/debug (
 	set flagDebug=ON
 	set flagRelease=OFF
@@ -49,11 +47,11 @@ if /%2==/debug (
 	set flagRelease=ON
 	set flagDebug=OFF
 	set configType=Release
-	
+
 	set postfix=%postfixR%
 )
 
-REM avxåˆ¤å®š
+REM avx”»’è
 if /%3==/avx (
 	set cpuBaseLineOrig="-DCPU_BASELINE=""AVX2"""
 	set avxType=Enable
@@ -64,7 +62,7 @@ if /%3==/avx (
 )
 set cpuBaseLine=%cpuBaseLineOrig:"=%
 
-REM Pythonåˆ‡ã‚Šæ›¿ãˆ
+REM PythonØ‚è‘Ö‚¦
 REM if /%linkType%==/Shared (
 REM 	set flagPython=OFF
 REM ) else (
@@ -80,78 +78,70 @@ REM 	)
 REM )
 set flagPython=OFF
 
-REM ãƒ“ãƒ«ãƒ‰æ¡ä»¶è¡¨ç¤º
+REM ƒrƒ‹ƒhğŒ•\¦
 echo link type : %linkType%
 echo config type : %configType%
 echo avx type : %avxType%
 echo python build : %flagPython%
 
-REM ç¾åœ¨ã®ãƒ‘ã‚¹ã®ä¿æŒ
+REM Œ»İ‚ÌƒpƒX‚Ì•Û
 for /f "delims=" %%f in ( 'cd' ) do set currentPath=%%f
 
-REM ãƒãƒƒãƒãƒ•ã‚¡ã‚¤ãƒ«ã®å ´æ‰€
+REM ƒoƒbƒ`ƒtƒ@ƒCƒ‹‚ÌêŠ
 set batchPath=%~dp0
 
-REM ã‚½ãƒ¼ã‚¹ç½®ãå ´
+REM ƒ\[ƒX’u‚«ê
 cd /d "%batchPath%..\..\"
 for /f "delims=" %%f in ( 'cd' ) do set sourceDir=%%f
 cd /d "%currentPath%"
 
-REM CMakeãƒ‘ã‚¹ä½œæˆ
-set cmakeExe="%sourceDir%\Build\Tools\%cmakePath%"
-REM CMakeãƒ‘ã‚¹è¡¨ç¤º
+REM CMakeƒpƒXì¬
+set cmakeExe=%cmakePath%
+REM CMakeƒpƒX•\¦
 echo CMake : %cmakeExe%
 
 REM Ninja
-set ninjaExe="%sourceDir%\Build\Tools\%ninjaPath%"
-REM Ninjaãƒ‘ã‚¹è¡¨ç¤º
+set ninjaExe=%ninjaPath%
+REM NinjaƒpƒX•\¦
 echo Ninja : %ninjaExe%
 
-REM Ninjaãƒ•ã‚¡ã‚¤ãƒ«ãƒã‚§ãƒƒã‚¯
-call "%sourceDir%\Build\Ninja\Ninja_Build.bat"
-
-REM MKLãƒ‘ã‚¹
+REM MKLƒpƒX
 set mklPath=%intelLibraryDir%\mkl
-REM MKLãƒ‘ã‚¹è¡¨ç¤º
+REM MKLƒpƒX•\¦
 echo MKL : %mklPath%
 
-REM OpenCV 3rd Partyãƒ‘ã‚¹
+REM OpenCV 3rd PartyƒpƒX
 set openCv3rdpartyPath=%sourceDir%\%openCv3rdpartyDir%
-REM OpenCV 3rd Partyãƒ‘ã‚¹è¡¨ç¤º
+REM OpenCV 3rd PartyƒpƒX•\¦
 echo OpenCV 3rd Party : %openCv3rdpartyPath%
-
-REM OpenCV Contribãƒ‘ã‚¹
-set openCvContribPath=%sourceDir%\%openCvContribDir%
-REM OpenCV Contribãƒ‘ã‚¹è¡¨ç¤º
-echo OpenCV Contrib : %openCvContribPath%
 
 REM OpenCV
 set openCvPath=%sourceDir%\%openCvDir%
-REM OpenCVãƒ‘ã‚¹è¡¨ç¤º
+REM OpenCVƒpƒX•\¦
 echo OpenCV : %openCvPath%
 
-REM TBBãƒ‘ã‚¹
+REM TBBƒpƒX
 REM set tbbPath=%sourceDir%\%tbbDir%
 set tbbPath=%intelLibraryDir%\tbb
-REM TBBãƒ‘ã‚¹è¡¨ç¤º
+REM TBBƒpƒX•\¦
 echo TBB : %tbbPath%
 
-REM CUDAãƒ‘ã‚¹
+REM CUDAƒpƒX
 set cudaPath=%sourceDir%\CUDA
-REM CUDAãƒ‘ã‚¹è¡¨ç¤º
+REM CUDAƒpƒX•\¦
 echo CUDA : %cudaPath%
 
-REM CUDAãƒ‘ã‚¹ç¢ºèª
+REM CUDAƒpƒXŠm”F
 if not exist %cudaPath% (
 	powershell -Command Start-Process -Wait -FilePath cmd.exe -Verb runas -ArgumentList '/c','"mklink /D ""%cudaPath%""" """%CUDA_PATH%"""'
 )
 
-REM CUDAãƒ‘ã‚¹å†è¨­å®š
+REM CUDAƒpƒXÄİ’è
 if not /"%cudaPath%"==/"%CUDA_PATH%" (
 	set CUDA_PATH=%cudaPath%
 )
 
-REM ã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ¢ãƒ‡ãƒ«åˆ‡ã‚Šæ›¿ãˆ
+REM ƒAƒhƒŒƒXƒ‚ƒfƒ‹Ø‚è‘Ö‚¦
 if /%Platform%==/ (
 	set platformName=Win32
 	set platformNameShort=x86
@@ -164,167 +154,55 @@ if /%Platform%==/ (
 	set platformNameGst=x86_64
 )
 
-REM Visual Studioãƒãƒ¼ã‚¸ãƒ§ãƒ³åˆ‡ã‚Šæ›¿ãˆ
+REM Visual Studioƒo[ƒWƒ‡ƒ“Ø‚è‘Ö‚¦
 if /%VisualStudioVersion%==/11.0 (
 	set vsVersion=vs2012
 	set flagCuda=ON
 	set flagMsmf=ON
-	set flagHalide=OFF
-	set flagSfm=ON
 	set vcVersion=vc11
 ) else if /%VisualStudioVersion%==/12.0 (
 	set vsVersion=vs2013
 	set flagCuda=ON
 	set flagMsmf=ON
-	set flagHalide=OFF
-	set flagSfm=ON
 	set vcVersion=vc12
 ) else if /%VisualStudioVersion%==/14.0 (
 	set vsVersion=vs2015
 	set flagCuda=ON
 	set flagMsmf=ON
-	set flagHalide=ON
-	set flagSfm=ON
 	set vcVersion=vc14
 ) else if /%VisualStudioVersion%==/15.0 (
 	set vsVersion=vs2017
 	set flagCuda=ON
 	set flagMsmf=ON
-	set flagHalide=ON
-	set flagSfm=ON
 	REM set vcVersion=vc141
 	set vcVersion=vc14
 ) else (
 	set vsVersion=vs2010
 	set flagCuda=ON
 	set flagMsmf=OFF
-	set flagHalide=OFF
-	set flagSfm=ON
 	set vcVersion=vc10
 )
 
-REM Gstreamerãƒ‘ã‚¹ä½œæˆ
+REM GstreamerƒpƒXì¬
 set gstPath=%gstreamerDir%\1.0\%platformNameGst%
-REM Gstreamerãƒ‘ã‚¹è¡¨ç¤º
+REM GstreamerƒpƒX•\¦
 echo Gstreamer : %gstPath%
 
-REM Eigenãƒ‘ã‚¹
+REM EigenƒpƒX
 set eigenPath=%buildBuf%\%vsVersion%\%platformName%\Eigen\install\include\eigen3
-REM Eigenãƒ‘ã‚¹è¡¨ç¤º
+REM EigenƒpƒX•\¦
 echo Eigen : %eigenPath%
 
-REM gflags
-set gflagPath=%buildBuf%\%vsVersion%\%platformName%\%configType%\Gflags\install
-REM gflagsãƒ‘ã‚¹è¡¨ç¤º
-echo gflags path : %gflagPath%
-
-REM glog
-REM set glogPath=%buildBuf%\%vsVersion%\%platformName%\%configType%\%linkType%\Glog\install
-set glogPath=%buildBuf%\%vsVersion%\%platformName%\%configType%\Static\Glog\install
-REM glogãƒ‘ã‚¹è¡¨ç¤º
-echo glog path : %glogPath%
-
-REM HDF5
-REM set hdf5Path=%buildBuf%\%vsVersion%\%platformName%\%configType%\%linkType%\HDF5\install
-set hdf5Path=%buildBuf%\%vsVersion%\%platformName%\%configType%\Static\HDF5\install
-REM HDF5ãƒ©ã‚¤ãƒ–ãƒ©ãƒª
-REM if /%linkType%==/Shared (
-REM 	set hdf5prefix=
-REM ) else (
-	set hdf5prefix=lib
-REM )
-if /%configType%==/Debug (
-	set hdf5postfix=_D
-) else (
-	set hdf5postfix=
-)
-REM HDF5ãƒ‘ã‚¹è¡¨ç¤º
-echo hdf5 path : %hdf5Path%
-echo hdf5 lib path : %hdf5Path%\lib\%hdf5prefix%hdf5%hdf5postfix%.lib
-
-REM Halide
-set halidePath=%buildBuf%\%vsVersion%\%platformName%\%configType%\Halide
-REM Halideãƒ©ã‚¤ãƒ–ãƒ©ãƒª
-if /%configType%==/Debug (
-	set halidePostfix=d
-) else (
-	set halidePostfix=
-)
-REM Halideãƒ‘ã‚¹è¡¨ç¤º
-echo halide Path : %halidePath%
-echo halide lib Path : %halidePath%\lib\Halide%postfix%.lib
-
-REM Halideã®å®šæ•°å®šç¾©ã‚ªãƒ—ã‚·ãƒ§ãƒ³
-set halideDefineString=-DHALIDE_INCLUDE_DIR="%halidePath:\=/%/include" ^
--DHALIDE_INCLUDE_DIRS="%halidePath:\=/%/include" ^
--DHALIDE_LIBRARIES="%halidePath:\=/%/lib/Halide%halidePostfix%.lib" ^
--DHALIDE_LIBRARY="%halidePath:\=/%/lib/Halide%halidePostfix%.lib%" ^
--DHALIDE_ROOT_DIR="%halidePath:\=/%" ^
--DHalide_DIR="%halidePath:\=/%"
-
-REM Visual StudioãŒHalideã‚’ã‚µãƒãƒ¼ãƒˆã—ãªã„å ´åˆã¯ã€Halideã®å®šæ•°å®šç¾©ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚’ç©ºæ–‡å­—åˆ—ã«ã™ã‚‹ã€‚
-if /%flagHalide%==/OFF (
-	set halideDefineString=
-	echo Halideãªã—ã§ãƒ“ãƒ«ãƒ‰ %vsVersion%
-)
-
-REM jpeg
-set jpegPath=%buildBuf%\%vsVersion%\%platformName%\%configType%\libJpeg-turbo\install
-REM HDF5ãƒ©ã‚¤ãƒ–ãƒ©ãƒª
-REM if /%linkType%==/Shared (
-REM 	set jpegPostfixTmp=
-REM ) else (
-	set jpegPostfixTmp=-static
-REM )
-if /%configType%==/Debug (
-	set jpegPostfix=%jpegPostfixTmp%d
-) else (
-	set jpegPostfix=%jpegPostfixTmp%
-)
-REM jpegãƒ‘ã‚¹è¡¨ç¤º
-echo jpeg Path : %jpegPath%
-echo jpeg lib Path : %jpegPath%\lib\jpeg%jpegPostfix%.lib
-
-REM ProtoBuf
-REM set protoBufPath=%buildBuf%\%vsVersion%\%platformName%\%configType%\%linkType%\ProtoBuf\install
-set protoBufPath=%buildBuf%\%vsVersion%\%platformName%\%configType%\Static\ProtoBuf\install
-REM set protoBufPathD=%buildBuf%\%vsVersion%\%platformName%\Debug\%linkType%\ProtoBuf\install
-set protoBufPathD=%buildBuf%\%vsVersion%\%platformName%\Debug\Static\ProtoBuf\install
-REM set protoBufPathR=%buildBuf%\%vsVersion%\%platformName%\Release\%linkType%\ProtoBuf\install
-set protoBufPathR=%buildBuf%\%vsVersion%\%platformName%\Release\Static\ProtoBuf\install
-set protobufCompiler=%buildBuf%\%vsVersion%\%platformName%\Release\Static\ProtoBuf\install\bin\protoc.exe
-
-REM ProtoBufãƒ‘ã‚¹è¡¨ç¤º
-echo ProtoBuf Path : %protoBufPath%
-echo ProtoBuf Compiler Path : %protobufCompiler%
-
-REM zlib
-set zlibPath=%buildBuf%\%vsVersion%\%platformName%\%configType%\Zlib\install
-REM zlibãƒ©ã‚¤ãƒ–ãƒ©ãƒª
-REM if /%linkType%==/Shared (
-REM 	set zlibPostfix=
-REM ) else (
-	set zlibPostfix=static
-REM )
-set zlibLibD=%buildBuf%\%vsVersion%\%platformName%\Debug\Zlib\install\lib\zlib%zlibPostfix%d.lib
-set zlibLibR=%buildBuf%\%vsVersion%\%platformName%\Release\Zlib\install\lib\zlib%zlibPostfix%.lib
-
-REM zlibãƒ‘ã‚¹è¡¨ç¤º
-echo zlib Path : %zlibPath%
-echo zlib include Path : %zlibPath%\include
-echo zlib debug lib Path : %zlibLibD%
-echo zlib release lib Path : %zlibLibR%
-
-REM ãƒ“ãƒ«ãƒ‰ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+REM ƒrƒ‹ƒhƒfƒBƒŒƒNƒgƒŠ
 set buildDir=%buildBuf%\%vsVersion%\%platformName%\%configType%\%linkType%\OpenCV
 
-REM ãƒ“ãƒ«ãƒ‰ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªè¡¨ç¤º
+REM ƒrƒ‹ƒhƒfƒBƒŒƒNƒgƒŠ•\¦
 echo build directory : %buildDir%
-REM ãƒ“ãƒ«ãƒ‰ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªç¢ºèª
+REM ƒrƒ‹ƒhƒfƒBƒŒƒNƒgƒŠŠm”F
 if not exist "%buildDir%" (
 	mkdir "%buildDir%"
 )
-REM ãƒ“ãƒ«ãƒ‰ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã¸ç§»å‹•
+REM ƒrƒ‹ƒhƒfƒBƒŒƒNƒgƒŠ‚ÖˆÚ“®
 cd /d "%buildDir%"
 
 REM -G "Visual Studio 14 2015 Win64"^
@@ -338,71 +216,44 @@ REM -G "Visual Studio 14 2015 Win64"^
 -DCMAKE_EXE_LINKER_FLAGS="/machine:%platformNameShort% /MANIFEST:NO" ^
 -DCMAKE_MODULE_LINKER_FLAGS="/machine:%platformNameShort% /MANIFEST:NO" ^
 -DCMAKE_SHARED_LINKER_FLAGS="/machine:%platformNameShort% /MANIFEST:NO" ^
--DPROTOBUF_UPDATE_FILES=ON ^
 -DBUILD_DOCS=OFF ^
--DBUILD_JPEG=OFF ^
 -DBUILD_PACKAGE=OFF ^
 -DBUILD_PERF_TESTS=OFF ^
--DBUILD_PROTOBUF=OFF ^
 -DBUILD_SHARED_LIBS=%flagShared% ^
 -DBUILD_TESTS=OFF ^
 -DBUILD_WITH_STATIC_CRT=OFF ^
--DBUILD_ZLIB=OFF ^
 -DBUILD_opencv_apps=OFF ^
 -DBUILD_opencv_java_bindings_generator=OFF ^
 -DBUILD_opencv_js=OFF ^
--DBUILD_opencv_sfm=%flagSfm% ^
+-DBUILD_opencv_sfm=OFF ^
 -DBUILD_opencv_python3=%flagPython% ^
 -DBUILD_opencv_ts=OFF ^
 -DBUILD_opencv_world=ON ^
 -DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W0 /GR /EHsc /bigobj /std:c++14 /DCV_CXX_STD_ARRAY=1 %glogFlag%" ^
 -DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W0 /bigobj %glogFlag%" ^
 -DCMAKE_INSTALL_PREFIX="%buildDir:\=/%/install" %cpuBaseLine% ^
--DCUDA_ARCH_BIN="5.2 6.1" ^
--DCUDA_ARCH_PTX="3.0" ^
+-DCUDA_ARCH_BIN="5.0" ^
 -DCUDA_FAST_MATH=%flagRelease% ^
 -DCUDA_NVCC_FLAGS="-Xcompiler """/W0 /FS"""" ^
 -DENABLE_CXX11=ON ^
 -DENABLE_LTO=ON ^
--Dgflags_DIR="%gflagPath:\=/%/lib/cmake/gflags" ^
--DGFLAGS_SHARED=%flagShared% ^
--DGLOG_INCLUDE_DIR="%glogPath:\=/%/include" ^
--DGLOG_LIBRARY="%glogPath:\=/%/lib/glog%postfix%.lib" ^
--DGlog_LIBS="%glogPath:\=/%/lib/glog%postfix%.lib" ^
 -DGSTREAMER_DIR="%gstPath:\=/%" ^
-%halideDefineString% ^
--DHDF5_C_LIBRARY="%hdf5Path:\=/%/lib/%hdf5prefix%hdf5%hdf5postfix%.lib" ^
--DHDF5_INCLUDE_DIRS="%hdf5Path:\=/%/include" ^
--DHDF5_USE_DLL=OFF ^
--DJPEG_INCLUDE_DIR="%jpegPath:\=/%/include" ^
--DJPEG_LIBRARY="%jpegPath:\=/%/lib/jpeg%jpegPostfix%.lib" ^
 -DMKL_ROOT_DIR="%mklPath:\=/%" ^
+-DMKL_LIBRARIES="%mklPath:\=/%/lib/intel64/mkl_intel_lp64.lib;%mklPath:\=/%/lib/intel64/mkl_sequential.lib;%mklPath:\=/%/lib/intel64/mkl_core.lib" ^
 -DMKL_USE_DLL=OFF ^
 -DMKL_USE_MULTITHREAD=ON ^
 -DMKL_WITH_TBB=%flagRelease% ^
 -DMKL_USE_TBB_PREVIEW=OFF ^
 -DOPENCV_DOWNLOAD_PATH="%openCv3rdpartyPath:\=/%" ^
 -DOPENCV_ENABLE_NONFREE=ON ^
--DOPENCV_EXTRA_MODULES_PATH="%openCvContribPath:\=/%/modules" ^
--DProtobuf_INCLUDE_DIR="%protoBufPath:\=/%/include" ^
--DProtobuf_LIBRARY_DEBUG="%protoBufPathD:\=/%/lib/protobuf%postfixD%.lib" ^
--DProtobuf_LIBRARY_RELEASE="%protoBufPathR:\=/%/lib/protobuf%postfixR%.lib" ^
--DProtobuf_LITE_LIBRARY_DEBUG="%protoBufPathD:\=/%/lib/protobuf-lite%postfixD%.lib" ^
--DProtobuf_LITE_LIBRARY_RELEASE="%protoBufPathR:\=/%/lib/protobuf-lite%postfixR%.lib" ^
--DProtobuf_PROTOC_EXECUTABLE="%protobufCompiler:\=/%" ^
--DProtobuf_PROTOC_LIBRARY_DEBUG="%protoBufPathD:\=/%/lib/protoc%postfixD%.lib" ^
--DProtobuf_PROTOC_LIBRARY_RELEASE="%protoBufPathR:\=/%/lib/protoc%postfixR%.lib" ^
--DProtobuf_USE_DLL=OFF ^
 -DTBB_ENV_INCLUDE="%tbbPath:\=/%/include" ^
 -DTBB_ENV_LIB="%tbbPath:\=/%/lib/%platformNameIntel%/%vcVersion%/tbb.lib" ^
 -DTBB_ENV_LIB_DEBUG="%tbbPath:\=/%/lib/%platformNameIntel%/%vcVersion%/tbb_debug.lib" ^
--DTINYDNN_USE_TBB=ON ^
 -DWITH_1394=OFF ^
 -DWITH_CUBLAS=%flagCuda% ^
 -DWITH_CUDA=%flagCuda% ^
 -DWITH_CUFFT=%flagCuda% ^
 -DWITH_GSTREAMER=ON ^
--DWITH_HALIDE=%flagHalide% ^
 -DWITH_MATLAB=OFF ^
 -DWITH_MSMF=%flagMsmf% ^
 -DWITH_NVCUVID=%flagCuda% ^
@@ -410,12 +261,7 @@ REM -G "Visual Studio 14 2015 Win64"^
 -DWITH_OPENCL_SVM=%flagCuda% ^
 -DWITH_OPENGL=ON ^
 -DWITH_TBB=ON ^
--DWITH_VTK=OFF ^
--DZLIB_INCLUDE_DIR="%zlibPath:\=/%/include" ^
--DZLIB_LIBRARY_DEBUG="%zlibLibD:\=/%" ^
--DZLIB_LIBRARY_RELEASE="%zlibLibR:\=/%"
-
-REM -DCUDA_ARCH_BIN="3.0 3.5 3.7 5.0 5.2 6.0 6.1 7.0" ^
+-DWITH_VTK=OFF
 
 REM pause
 

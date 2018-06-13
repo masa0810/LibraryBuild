@@ -2,38 +2,40 @@
 setlocal
 
 REM FastCopy
-set fastcopyPath=FastCopy341_x64\FastCopy.exe
+set fastcopyPath="C:\Program Files\FastCopy\FastCopy.exe"
 
-REM FastCopyãƒ¢ãƒ¼ãƒ‰
+REM FastCopyƒ‚[ƒh
 set fastcopyMode=/force_close
 
-REM ãƒ“ãƒ«ãƒ‰ãƒãƒƒãƒ•ã‚¡
+REM ƒrƒ‹ƒhƒoƒbƒtƒ@
 set buildBuf=C:\Library\Temp
 
-REM ãƒ©ã‚¤ãƒ–ãƒ©ãƒªãƒ‘ã‚¹
+REM ƒ‰ƒCƒuƒ‰ƒŠƒpƒX
 set intelLibraryDirOrig="C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows"
 set intelLibraryDir=%intelLibraryDirOrig:"=%
 
-REM ãƒãƒ¼ã‚¸ãƒ§ãƒ³è¨­å®š
-set intelVersion=2018Update3
+REM ƒo[ƒWƒ‡ƒ“Ý’è
+set ippVersion=2018Update3
+set mklVersion=2018Update3
+set tbbVersion=2018Update4
 
-REM ç¾åœ¨ã®ãƒ‘ã‚¹ã®ä¿æŒ
+REM Œ»Ý‚ÌƒpƒX‚Ì•ÛŽ
 for /f "delims=" %%f in ( 'cd' ) do set currentPath=%%f
 
-REM ãƒãƒƒãƒãƒ•ã‚¡ã‚¤ãƒ«ã®å ´æ‰€
+REM ƒoƒbƒ`ƒtƒ@ƒCƒ‹‚ÌêŠ
 set batchPath=%~dp0
 
-REM ã‚½ãƒ¼ã‚¹ç½®ãå ´
+REM ƒ\[ƒX’u‚«ê
 cd /d "%batchPath%..\..\"
 for /f "delims=" %%f in ( 'cd' ) do set sourceDir=%%f
 cd /d "%currentPath%"
 
-REM FastCopyãƒ‘ã‚¹ä½œæˆ
-set fastcopyExe="%sourceDir%\Build\Tools\%fastcopyPath%"
-REM FastCopyãƒ‘ã‚¹è¡¨ç¤º
+REM FastCopyƒpƒXì¬
+set fastcopyExe=%fastcopyPath%
+REM FastCopyƒpƒX•\Ž¦
 echo FastCopy : %fastcopyExe%
 
-REM ã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ¢ãƒ‡ãƒ«åˆ‡ã‚Šæ›¿ãˆ
+REM ƒAƒhƒŒƒXƒ‚ƒfƒ‹Ø‚è‘Ö‚¦
 if /%Platform%==/ (
 	set platformName=Win32
 	set platformNameIntel=ia32
@@ -42,7 +44,7 @@ if /%Platform%==/ (
 	set platformNameIntel=intel64
 )
 
-REM Visual Studioãƒãƒ¼ã‚¸ãƒ§ãƒ³åˆ‡ã‚Šæ›¿ãˆ
+REM Visual Studioƒo[ƒWƒ‡ƒ“Ø‚è‘Ö‚¦
 if /%VisualStudioVersion%==/11.0 (
 	set vcVersion=110
 	set vcVersionIntel=vc11
@@ -61,76 +63,76 @@ if /%VisualStudioVersion%==/11.0 (
 	set vcVersionIntel=vc10
 )
 
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠ
 set ippFinalDir=%buildBuf%\Final\IPP
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªè¡¨ç¤º
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠ•\Ž¦
 echo install : %ippFinalDir%
 
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå‰Šé™¤
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠíœ
 if exist "%ippFinalDir%" (
 	rd /S /Q "%ippFinalDir%"
 )
 
-REM includeã‚³ãƒ”ãƒ¼
+REM includeƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff "%intelLibraryDir%\ipp\include" /to="%ippFinalDir%\"
 
-REM libã‚³ãƒ”ãƒ¼
+REM libƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff "%intelLibraryDir%\ipp\lib\%platformNameIntel%\*" /to="%ippFinalDir%\lib\%platformName%\"
 
-REM binã‚³ãƒ”ãƒ¼
+REM binƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff "%intelLibraryDir%\redist\%platformNameIntel%\ipp\*" /to="%ippFinalDir%\bin\%platformName%\"
 
-REM ãƒãƒ¼ã‚¸ãƒ§ãƒ³ç•ªå·ãƒ•ã‚¡ã‚¤ãƒ«è¿½åŠ 
-type nul > %ippFinalDir%\IPP_%intelVersion%
+REM ƒo[ƒWƒ‡ƒ“”Ô†ƒtƒ@ƒCƒ‹’Ç‰Á
+type nul > %ippFinalDir%\IPP_%ippVersion%
 
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠ
 set mklFinalDir=%buildBuf%\Final\MKL
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªè¡¨ç¤º
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠ•\Ž¦
 echo install : %mklFinalDir%
 
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå‰Šé™¤
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠíœ
 if exist "%mklFinalDir%" (
 	rd /S /Q "%mklFinalDir%"
 )
 
-REM includeã‚³ãƒ”ãƒ¼
+REM includeƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff "%intelLibraryDir%\mkl\include" /to="%mklFinalDir%\"
 
-REM libã‚³ãƒ”ãƒ¼
+REM libƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff "%intelLibraryDir%\mkl\lib\%platformNameIntel%\*" /to="%mklFinalDir%\lib\%platformName%\"
 
-REM binã‚³ãƒ”ãƒ¼
+REM binƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff "%intelLibraryDir%\redist\%platformNameIntel%\mkl\*" /to="%mklFinalDir%\bin\%platformName%\"
 
-REM ãƒãƒ¼ã‚¸ãƒ§ãƒ³ç•ªå·ãƒ•ã‚¡ã‚¤ãƒ«è¿½åŠ 
-type nul > %mklFinalDir%\MKL_%intelVersion%
+REM ƒo[ƒWƒ‡ƒ“”Ô†ƒtƒ@ƒCƒ‹’Ç‰Á
+type nul > %mklFinalDir%\MKL_%mklVersion%
 
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠ
 set tbbFinalDir=%buildBuf%\Final\v%vcVersion%\TBB
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªè¡¨ç¤º
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠ•\Ž¦
 echo install : %tbbFinalDir%
 
-REM ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå‰Šé™¤
+REM ƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠíœ
 if exist "%tbbFinalDir%" (
 	rd /S /Q "%tbbFinalDir%"
 )
 
-REM includeã‚³ãƒ”ãƒ¼
+REM includeƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff /exclude="*.html" "%intelLibraryDir%\tbb\include" /to="%tbbFinalDir%\"
 
-REM libã‚³ãƒ”ãƒ¼
+REM libƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff /exclude="*.def;*.pdb" "%intelLibraryDir%\tbb\lib\%platformNameIntel%\%vcVersionIntel%" /to="%tbbFinalDir%\lib\%platformName%"
 
-REM binã‚³ãƒ”ãƒ¼
+REM binƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff "%intelLibraryDir%\redist\%platformNameIntel%\tbb\%vcVersionIntel%" /to="%tbbFinalDir%\bin\%platformName%"
 
-REM ã‚»ãƒƒãƒˆãƒ˜ãƒƒãƒ€ã®ã‚³ãƒ”ãƒ¼
+REM ƒZƒbƒgƒwƒbƒ_‚ÌƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff "%batchPath%\files\tbbset.h" /to="%tbbFinalDir%\include\"
 
-REM Copyãƒãƒƒãƒã®ã‚³ãƒ”ãƒ¼
+REM Copyƒoƒbƒ`‚ÌƒRƒs[
 %fastcopyExe% %fastcopyMode% /cmd=diff "%batchPath%\files\TbbCopy.bat" /to="%tbbFinalDir%\"
 
-REM ãƒãƒ¼ã‚¸ãƒ§ãƒ³ç•ªå·ãƒ•ã‚¡ã‚¤ãƒ«è¿½åŠ 
-type nul > %tbbFinalDir%\TBB_%intelVersion%
+REM ƒo[ƒWƒ‡ƒ“”Ô†ƒtƒ@ƒCƒ‹’Ç‰Á
+type nul > %tbbFinalDir%\TBB_%tbbVersion%
 
 endlocal

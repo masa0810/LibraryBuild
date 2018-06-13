@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // C++11 std::array
 #if __cplusplus < 201103L && defined(_MSC_VER) && _MSC_VER >= 1600
@@ -377,7 +377,7 @@
         #ifdef HAVE_JASPER
             #pragma comment(lib, "libjasper" __OCV_SUFFIX__ ".lib")
         #endif
-        
+
         // JPEG
         #ifdef HAVE_JPEG
             #pragma comment(lib, "jpeg-static" __OCV_CONF_SUFFIX__ ".lib")
