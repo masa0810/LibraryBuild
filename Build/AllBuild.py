@@ -83,6 +83,7 @@ def build_run(build_name, flag_avx=False):
         "opencv": (os.path.join(SCRIPT_PATH, r"OpenCV\OpenCV_Build.bat"), flag_avx),
         "protobuf": (os.path.join(SCRIPT_PATH, r"ProtoBuf\ProtoBuf_Build.bat"), False),
         "snappy": (os.path.join(SCRIPT_PATH, r"Snappy\Snappy_Build.bat"), False),
+        "tbb": (os.path.join(SCRIPT_PATH, r"TBB\TBB_Build.bat"), False),
         "zlib": (os.path.join(SCRIPT_PATH, r"Zlib\zlib_Build.bat"), False)
     }
 
@@ -113,20 +114,8 @@ if __name__ == "__main__":
         for n in range(1, ARGC):
             build_run(ARGV[n], enable_avx)
     else:
-        for name in ["zlib",
-                     "HDF5",
-                     "libJpeg-turbo",
-                     "gflags",
-                     "glog",
-                     "ProtoBuf",
-                     "Halide",
+        for name in ["TBB",
                      "OpenCV",
-                     "MXNet",
-                     "ICU",
-                     "Boost",
-                     "lmdb",
-                     "Snappy",
-                     "LevelDB",
-                     "Caffe"]:
+                     "Boost"]:
             if not build_run(name, enable_avx):
                 break

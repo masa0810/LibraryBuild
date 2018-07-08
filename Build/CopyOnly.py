@@ -70,7 +70,5 @@ if __name__ == "__main__":
         for name in ["CUDA",
                      "Eigen",
                      "Fmt",
-                     "Gstreamer",
-                     "Intel",
-                     "PyBind11"]:
+                     "Intel"]:
             build_run(name)

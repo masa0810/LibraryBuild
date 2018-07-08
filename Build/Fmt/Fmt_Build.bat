@@ -20,7 +20,7 @@ REM ライブラリパス
 set fmtDir=fmt
 
 REM バージョン設定
-set fmtVersion=5.0.0
+set fmtVersion=5.1.0
 
 REM 現在のパスの保持
 for /f "delims=" %%f in ( 'cd' ) do set currentPath=%%f
