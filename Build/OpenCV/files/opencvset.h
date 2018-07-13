@@ -53,7 +53,7 @@
     #endif
 
     // バージョン文字列
-    #define __OCV_VER__ "341"
+    #define __OCV_VER__ "342"
 
     #ifdef HAVE_OPENCV_IMG_HASH
         #pragma comment(lib, "opencv_img_hash" __OCV_VER__ __OCV_SUFFIX__ ".lib")
