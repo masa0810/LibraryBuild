@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _LIB
     // サフィックス設定
@@ -13,6 +13,9 @@
     #ifdef BENCHMARK_USE_MAIN
         #pragma comment(lib, "benchmark_main" __BENCHMARK_SUFFIX__ ".lib")
     #endif
+
+    #pragma comment(lib, "shlwapi.lib")
+
 #endif
 
 #define _HAVE_BENCHMARK
