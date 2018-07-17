@@ -71,7 +71,7 @@ def build_run(build_name, flag_avx=False):
         "boost": (os.path.join(SCRIPT_PATH, r"Boost\Boost_Build.bat"), flag_avx),
         "caffe": (os.path.join(SCRIPT_PATH, r"Caffe\Caffe_Build.bat"), False),
         "gflags": (os.path.join(SCRIPT_PATH, r"Gflags\gflags_Build.bat"), False),
-        "glog": (os.path.join(SCRIPT_PATH, r"Glog\glog_Build.bat"), False
+        "glog": (os.path.join(SCRIPT_PATH, r"Glog\glog_Build.bat"), False),
         "googletest": (os.path.join(SCRIPT_PATH, r"GoogleTest\googletest_Build.bat"), False),
         "halide": (os.path.join(SCRIPT_PATH, r"Halide\Halide_Build.bat"), False),
         "hdf5": (os.path.join(SCRIPT_PATH, r"HDF5\HDF5_Build.bat"), False),

@@ -2,10 +2,10 @@
 setlocal
 
 REM CMake
-set cmakePath=CMake\bin\cmake.exe
+set cmakePath="C:\Program Files\CMake\bin\cmake.exe"
 
 REM ninja
-set ninjaPath=Ninja\ninja.exe
+set ninjaPath="E:\Shared\Software\Ninja\ninja.exe"
 
 REM ライブラリパス
 set benchmarkDir=benchmark
@@ -44,17 +44,14 @@ for /f "delims=" %%f in ( 'cd' ) do set sourceDir=%%f
 cd /d "%currentPath%"
 
 REM CMakeパス作成
-set cmakeExe="%sourceDir%\Build\Tools\%cmakePath%"
+set cmakeExe=%cmakePath%
 REM CMakeパス表示
 echo CMake : %cmakeExe%
 
 REM Ninja
-set ninjaExe="%sourceDir%\Build\Tools\%ninjaPath%"
+set ninjaExe=%ninjaPath%
 REM Ninjaパス表示
 echo Ninja : %ninjaExe%
-
-REM Ninjaファイルチェック
-call "%sourceDir%\Build\Ninja\Ninja_Build.bat"
 
 REM benchmark
 set benchmarkPath=%sourceDir%\%benchmarkDir%

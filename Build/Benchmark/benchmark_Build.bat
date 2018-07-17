@@ -2,13 +2,13 @@
 setlocal
 
 REM FastCopy
-set fastcopyPath=FastCopy\FastCopy.exe
+set fastcopyPath="C:\Program Files\FastCopy\FastCopy.exe"
 
 REM FastCopyモード
 set fastcopyMode=/force_close
 
 REM ninja
-set ninjaPath=Ninja\ninja.exe
+set ninjaPath="E:\Shared\Software\Ninja\ninja.exe"
 
 REM ビルドバッファ
 set buildBuf=C:\Library\Temp
@@ -41,17 +41,14 @@ for /f "delims=" %%f in ( 'cd' ) do set sourceDir=%%f
 cd /d "%currentPath%"
 
 REM FastCopyパス作成
-set fastcopyExe="%sourceDir%\Build\Tools\%fastcopyPath%"
+set fastcopyExe=%fastcopyPath%
 REM FastCopyパス表示
 echo FastCopy : %fastcopyExe%
 
 REM Ninja
-set ninjaExe="%sourceDir%\Build\Tools\%ninjaPath%"
+set ninjaExe=%ninjaPath%
 REM Ninjaパス表示
 echo Ninja : %ninjaExe%
-
-REM Ninjaファイルチェック
-call "%sourceDir%\Build\Ninja\Ninja_Build.bat"
 
 REM アドレスモデル切り替え
 if /%Platform%==/ (
