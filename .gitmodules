@@ -1,9 +1,6 @@
 [submodule "eigen"]
 	path = eigen
 	url = git@github.com:eigenteam/eigen-git-mirror.git
-[submodule "boost"]
-	path = boost
-	url = git@github.com:boostorg/boost.git
 [submodule "fmt"]
 	path = fmt
 	url = git@github.com:fmtlib/fmt.git
