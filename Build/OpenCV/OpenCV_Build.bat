@@ -14,7 +14,7 @@ REM ビルドバッファ
 set buildBuf=C:\Library\Temp
 
 REM バージョン設定
-set openCvVersion=3.4.2
+set openCvVersion=3.4.3
 
 REM 並列ビルド数
 set numOfParallel=%NUMBER_OF_PROCESSORS%

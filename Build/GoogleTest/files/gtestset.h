@@ -1,9 +1,5 @@
 ﻿#pragma once
 
-#ifndef _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
-  #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
-#endif
-
 #ifndef _LIB
     // サフィックス設定
     #ifdef GTEST_USE_DEBUG

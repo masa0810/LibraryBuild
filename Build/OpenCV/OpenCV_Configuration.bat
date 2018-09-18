@@ -105,6 +105,11 @@ set ninjaExe=%ninjaPath%
 REM Ninjaパス表示
 echo Ninja : %ninjaExe%
 
+REM Eigenパス
+set eigenPath=%sourceDir%\eigen
+REM Eigenパス表示
+echo Eigen : %eigenPath%
+
 REM MKLパス
 set mklPath=%intelLibraryDir%\mkl
 REM MKLパス表示
@@ -187,11 +192,6 @@ REM Gstreamerパス作成
 set gstPath=%gstreamerDir%\1.0\%platformNameGst%
 REM Gstreamerパス表示
 echo Gstreamer : %gstPath%
-
-REM Eigenパス
-set eigenPath=%buildBuf%\%vsVersion%\%platformName%\Eigen\install\include\eigen3
-REM Eigenパス表示
-echo Eigen : %eigenPath%
 
 REM ビルドディレクトリ
 set buildDir=%buildBuf%\%vsVersion%\%platformName%\%configType%\%linkType%\OpenCV

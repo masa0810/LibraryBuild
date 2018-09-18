@@ -15,7 +15,7 @@ set boostDir=boost
 set pythonDir=C:\Library\Python
 
 REM バージョン設定
-set boostVersion=1.67
+set boostVersion=1.68
 set pythonVersion=3.6
 
 REM 並列ビルド数

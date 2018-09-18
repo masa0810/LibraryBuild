@@ -13,3 +13,12 @@
 [submodule "googletest"]
 	path = googletest
 	url = git@github.com:google/googletest.git
+[submodule "nng"]
+	path = nng
+	url = git@github.com:nanomsg/nng.git
+[submodule "nngpp"]
+	path = nngpp
+	url = git@github.com:cwzx/nngpp.git
+[submodule "json"]
+	path = json
+	url = git@github.com:nlohmann/json.git

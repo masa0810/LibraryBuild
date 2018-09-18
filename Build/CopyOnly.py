@@ -8,6 +8,7 @@ import os
 import subprocess
 import sys
 
+
 def get_line(proc):
     """コマンドライン出力取得"""
     while True:
@@ -17,6 +18,7 @@ def get_line(proc):
         if not line and proc.poll() is not None:
             break
 
+
 def safe_run(batch_file):
     """セーフ実行"""
 
@@ -24,13 +26,15 @@ def safe_run(batch_file):
     show_string = os.path.basename(os.path.dirname(batch_file))
 
     # プロセスを生成してバッチファイルを実行
-    proc = subprocess.Popen(batch_file, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    proc = subprocess.Popen(
+        batch_file, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     # バッチファイルの出力をコンソールに出力
     for line in get_line(proc):
         sys.stdout.write(line.decode("sjis", "ignore"))
 
     # 正常終了
     print("[{:s}] Success".format(show_string))
+
 
 def build_run(build_name):
     """ビルド実行"""
@@ -40,7 +44,8 @@ def build_run(build_name):
         "cuda": os.path.join(SCRIPT_PATH, r"CUDA\CUDA_Build.bat"),
         "eigen": os.path.join(SCRIPT_PATH, r"Eigen\Eigen_Build.bat"),
         "fmt": os.path.join(SCRIPT_PATH, r"Fmt\Fmt_Build.bat"),
-        "gstreamer": os.path.join(SCRIPT_PATH, r"Gstreamer\Gstreamer_Build.bat"),
+        "gstreamer": os.path.join(SCRIPT_PATH,
+                                  r"Gstreamer\Gstreamer_Build.bat"),
         "intel": os.path.join(SCRIPT_PATH, r"Intel\Intel_Build.bat"),
         "pybind11": os.path.join(SCRIPT_PATH, r"PyBind11\PyBind11_Build.bat")
     }
@@ -48,6 +53,7 @@ def build_run(build_name):
     batch_path = switcher.get(build_name.lower())
     if batch_path is not None:
         safe_run(batch_path)
+
 
 if __name__ == "__main__":
 
@@ -67,8 +73,5 @@ if __name__ == "__main__":
     else:
         # for name in ["Cereal",
         #              "CUDA",
-        for name in ["CUDA",
-                     "Eigen",
-                     "Fmt",
-                     "Intel"]:
+        for name in ["CUDA", "Eigen", "Fmt", "Intel"]:
             build_run(name)

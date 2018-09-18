@@ -1,3 +1,4 @@
 /cudnn
 /opencv_3rdparty
 /CUDA
+/Build/Common/__pycache__/*.pyc

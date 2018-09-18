@@ -11,6 +11,7 @@ import sys
 LOOP_MIN = 2
 LOOP_MAX = 10
 
+
 def get_line(proc):
     """コマンドライン出力取得"""
     while True:
@@ -19,6 +20,7 @@ def get_line(proc):
             yield line
         if not line and proc.poll() is not None:
             break
+
 
 def safe_run(batch_file, *args, min_loop=1, max_loop=1):
     """セーフ実行"""
@@ -39,7 +41,8 @@ def safe_run(batch_file, *args, min_loop=1, max_loop=1):
     # 最大繰り返し回数分ループ
     for i in range(max_loop):
         # プロセスを生成してバッチファイルを実行
-        proc = subprocess.Popen(arg_list, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        proc = subprocess.Popen(
+            arg_list, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         # バッチファイルの出力をコンソールに出力
         for line in get_line(proc):
             sys.stdout.write(line.decode("sjis", "ignore"))
@@ -60,6 +63,7 @@ def safe_run(batch_file, *args, min_loop=1, max_loop=1):
     print("[{:s}] Success".format(show_string))
     return True
 
+
 def build_run(build_name, flag_avx=False):
     """ビルド実行"""
 
@@ -67,33 +71,48 @@ def build_run(build_name, flag_avx=False):
         print("Enable AVX")
 
     switcher = {
-        "benchmark": (os.path.join(SCRIPT_PATH, r"Benchmark\benchmark_Build.bat"), False),
-        "boost": (os.path.join(SCRIPT_PATH, r"Boost\Boost_Build.bat"), flag_avx),
+        "benchmark": (os.path.join(SCRIPT_PATH,
+                                   r"Benchmark\benchmark_Build.bat"), False),
+        "boost": (os.path.join(SCRIPT_PATH, r"Boost\Boost_Build.bat"),
+                  flag_avx),
         "caffe": (os.path.join(SCRIPT_PATH, r"Caffe\Caffe_Build.bat"), False),
-        "gflags": (os.path.join(SCRIPT_PATH, r"Gflags\gflags_Build.bat"), False),
+        "gflags": (os.path.join(SCRIPT_PATH, r"Gflags\gflags_Build.bat"),
+                   False),
         "glog": (os.path.join(SCRIPT_PATH, r"Glog\glog_Build.bat"), False),
-        "googletest": (os.path.join(SCRIPT_PATH, r"GoogleTest\googletest_Build.bat"), False),
-        "halide": (os.path.join(SCRIPT_PATH, r"Halide\Halide_Build.bat"), False),
+        "googletest":
+        (os.path.join(SCRIPT_PATH, r"GoogleTest\googletest_Build.bat"), False),
+        "halide": (os.path.join(SCRIPT_PATH, r"Halide\Halide_Build.bat"),
+                   False),
         "hdf5": (os.path.join(SCRIPT_PATH, r"HDF5\HDF5_Build.bat"), False),
         "icu": (os.path.join(SCRIPT_PATH, r"ICU\ICU_Build.bat"), False),
-        "leveldb": (os.path.join(SCRIPT_PATH, r"LevelDB\LevelDB_Build.bat"), False),
-        "libcapture": (os.path.join(SCRIPT_PATH, r"libCapture\libCapture_Build.bat"), False),
-        "libjpeg-turbo":
-            (os.path.join(SCRIPT_PATH, r"libJpeg-turbo\libJpeg-turbo_Build.bat"), False),
+        "leveldb": (os.path.join(SCRIPT_PATH, r"LevelDB\LevelDB_Build.bat"),
+                    False),
+        "libcapture": (os.path.join(
+            SCRIPT_PATH, r"libCapture\libCapture_Build.bat"), False),
+        "libjpeg-turbo": (os.path.join(
+            SCRIPT_PATH, r"libJpeg-turbo\libJpeg-turbo_Build.bat"), False),
         "lmdb": (os.path.join(SCRIPT_PATH, r"Lmdb\lmdb_Build.bat"), False),
         "mxnet": (os.path.join(SCRIPT_PATH, r"MXNet\MXNet_Build.bat"), False),
-        "opencv": (os.path.join(SCRIPT_PATH, r"OpenCV\OpenCV_Build.bat"), flag_avx),
-        "protobuf": (os.path.join(SCRIPT_PATH, r"ProtoBuf\ProtoBuf_Build.bat"), False),
-        "snappy": (os.path.join(SCRIPT_PATH, r"Snappy\Snappy_Build.bat"), False),
+        "opencv": (os.path.join(SCRIPT_PATH, r"OpenCV\OpenCV_Build.bat"),
+                   flag_avx),
+        "protobuf": (os.path.join(SCRIPT_PATH, r"ProtoBuf\ProtoBuf_Build.bat"),
+                     False),
+        "snappy": (os.path.join(SCRIPT_PATH, r"Snappy\Snappy_Build.bat"),
+                   False),
         "tbb": (os.path.join(SCRIPT_PATH, r"TBB\TBB_Build.bat"), False),
         "zlib": (os.path.join(SCRIPT_PATH, r"Zlib\zlib_Build.bat"), False)
     }
 
     batch_path, avx_status = switcher.get(build_name.lower(), (None, False))
-    if batch_path is not None and safe_run(batch_path, "avx" if avx_status else None, min_loop=LOOP_MIN, max_loop=LOOP_MAX):
+    if batch_path is not None and safe_run(
+            batch_path,
+            "avx" if avx_status else None,
+            min_loop=LOOP_MIN,
+            max_loop=LOOP_MAX):
         return safe_run(batch_path, "install", "avx" if avx_status else None)
     else:
         return False
+
 
 if __name__ == "__main__":
 
@@ -104,9 +123,9 @@ if __name__ == "__main__":
     ARGV = sys.argv
 
     # avx確認
-    enable_avx = "avx" in ARGV
+    enable_avx = "no_avx" in ARGV
     if enable_avx:
-        ARGV.remove("avx")
+        ARGV.remove("no_avx")
 
     # 引数の数
     ARGC = len(ARGV)
@@ -116,8 +135,6 @@ if __name__ == "__main__":
         for n in range(1, ARGC):
             build_run(ARGV[n], enable_avx)
     else:
-        for name in ["TBB",
-                     "OpenCV",
-                     "Boost"]:
-            if not build_run(name, enable_avx):
+        for name in ["TBB", "OpenCV", "Boost"]:
+            if not build_run(name, not enable_avx):
                 break
