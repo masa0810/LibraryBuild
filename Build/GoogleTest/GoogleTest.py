@@ -62,15 +62,16 @@ def result_copy(final_dir, build_dir, platform_name, enable_shared,
     return result_state
 
 
-def create_cmake_args(cmake_args, source_path, build_base_dir, args,
-                      enable_shared, enable_debug):
+def create_cmake_args(cmake_args, source_path, build_base_dir, platform_name,
+                      vc_ver, args, enable_shared, enable_debug):
     """CMakeの引数作成"""
     cmake_args.append(
         "-DBUILD_SHARED_LIBS={}".format("ON" if enable_shared else "OFF"))
     cmake_args.append("-Dgtest_force_shared_crt=ON")
     if enable_debug:
         cmake_args.append("-DCMAKE_DEBUG_POSTFIX=d")
-    return cmake_args
+
+    return True
 
 
 if __name__ == "__main__":

@@ -18,10 +18,19 @@ import Common as com
 def cuda_copy(final_dir, lib_dir, platform_name, enable_shared, enable_debug,
               args):
     """ビルド結果コピー処理"""
+    # シンボリックリンク作成
+    if not lib_dir.exists():
+        cuda_path = os.getenv(
+            "CUDA_PATH_V9_2",
+            r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.2")
+        subprocess.check_call(
+            ["mklink", "/d", str(lib_dir), cuda_path], shell=True)
+
     # FastCopyの引数作成
     fastcopy_args = [
         str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
-        str(lib_dir / "include"), "/to={:s}".format(str(final_dir / "include"))
+        str(lib_dir / "include"), "/to={:s}".format(
+            str(final_dir / "include"))
     ]
     if args.verbose:
         print("FastCopy Args :")

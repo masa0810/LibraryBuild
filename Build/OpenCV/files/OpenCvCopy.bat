@@ -3,7 +3,7 @@ REM ƒtƒ@ƒCƒ‹ƒRƒs[(ˆø”1:ƒrƒ‹ƒhƒ^ƒCƒvAˆø”2:ƒA[ƒLƒeƒNƒ`ƒƒAˆø”3:o—ÍƒfƒBƒŒƒNƒ
 
 setlocal ENABLEDELAYEDEXPANSION
 
-set version=342
+set version=343
 set debugSuffix=d
 
 set libDir=%~dp0bin\

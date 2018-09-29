@@ -34,13 +34,13 @@ def result_copy(final_dir, build_dir, platform_name, enable_shared,
     return result_state
 
 
-def create_cmake_args(cmake_args, source_path, build_base_dir, args,
-                      enable_shared, enable_debug):
+def create_cmake_args(cmake_args, source_path, build_base_dir, platform_name,
+                      vc_ver, args, enable_shared, enable_debug):
     """CMakeの引数作成"""
     cmake_args.append("-DBUILD_TESTING=OFF")
     cmake_args.append("-DJSON_BuildTests=OFF")
 
-    return cmake_args
+    return True
 
 
 if __name__ == "__main__":

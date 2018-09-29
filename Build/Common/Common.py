@@ -143,13 +143,14 @@ def input_yes_or_no(text=""):
 
 
 def copy(build_dir, lib_name, dst_dir_name, lib_ver, platform_name, vc_ver,
-         enable_shared, enable_debug, args, copy_func, enable_ver_check):
+         enable_shared, enable_debug, enable_vs_share, args, copy_func,
+         enable_ver_check):
     """コピー実行"""
     global reset_dir_name
 
     # インストールディレクトリ
     final_dir = args.build_buf / "Final"
-    if vc_ver:
+    if not enable_vs_share:
         final_dir /= "v{:d}".format(vc_ver)
     final_dir /= dst_dir_name
     print("Install Dir : {:s}".format(str(final_dir)))
@@ -197,7 +198,7 @@ def build(lib_name,
     """ビルド実行"""
     # 引数表示
     print("Num Of CPU : {:d}".format(os.cpu_count()))
-    print("Auto SIMD : {}".format(args.disable_auto_simd))
+    print("Auto SIMD : {}".format(not args.disable_auto_simd))
 
     # ライブラリパス
     source_path = Path(__file__).resolve().parent.parent.parent
@@ -254,31 +255,33 @@ def build(lib_name,
             "-DCMAKE_INSTALL_PREFIX={:s}".format(
                 str(build_dir / "install").replace("\\", "/"))
         ]
-        create_cmake_args_func(cmake_args, source_path, build_base_dir, args,
-                               enable_shared, enable_debug)
-        print("CMake Args :")
-        for i in cmake_args:
-            print(i)
-
-        # CMakeを実行
-        result_state = run_proc(cmake_args)
-        # CMake GUIを表示
-        if result_state and args.gui:
-            result_state = run_proc(
-                [str(args.cmake_dir / "cmake-gui"),
-                 str(build_dir)])
-
+        result_state = create_cmake_args_func(
+            cmake_args, source_path, build_base_dir, platform_name, vc_ver,
+            args, enable_shared, enable_debug)
         if result_state:
-            # Ninja引数リスト
-            ninja_args = [str(args.ninja_path), "-j", str(os.cpu_count())]
-            if args.enable_install:
-                ninja_args.append("install")
-            if args.verbose:
-                print("Ninja Args :")
-                for i in ninja_args:
-                    print(i)
-            # Ninjaを実行
-            result_state = run_proc(ninja_args)
+            print("CMake Args :")
+            for i in cmake_args:
+                print(i)
+
+            # CMakeを実行
+            result_state = run_proc(cmake_args)
+            # CMake GUIを表示
+            if result_state and args.gui:
+                result_state = run_proc(
+                    [str(args.cmake_dir / "cmake-gui"),
+                     str(build_dir)])
+
+            if result_state:
+                # Ninja引数リスト
+                ninja_args = [str(args.ninja_path), "-j", str(os.cpu_count())]
+                if args.enable_install:
+                    ninja_args.append("install")
+                if args.verbose:
+                    print("Ninja Args :")
+                    for i in ninja_args:
+                        print(i)
+                # Ninjaを実行
+                result_state = run_proc(ninja_args)
 
         # ディレクトリ移動
         os.chdir(cur_dir)
@@ -290,7 +293,7 @@ def build(lib_name,
     if result_state and args.enable_install:
         result_state = copy(
             build_dir, lib_name, dst_dir_name if dst_dir_name else lib_name,
-            lib_ver, platform_name, "" if enable_vs_share else vc_ver,
-            enable_shared, enable_debug, args, copy_func, enable_ver_check)
+            lib_ver, platform_name, vc_ver, enable_shared, enable_debug,
+            enable_vs_share, args, copy_func, enable_ver_check)
 
     return result_state

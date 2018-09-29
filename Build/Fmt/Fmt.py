@@ -48,13 +48,13 @@ def result_copy(final_dir, build_dir, platform_name, enable_shared,
     return result_state
 
 
-def create_cmake_args(cmake_args, source_path, build_base_dir, args,
-                      enable_shared, enable_debug):
+def create_cmake_args(cmake_args, source_path, build_base_dir, platform_name,
+                      vc_ver, args, enable_shared, enable_debug):
     """CMakeの引数作成"""
     cmake_args.append("-DFMT_DOC=OFF")
     cmake_args.append("-DFMT_TEST=OFF")
 
-    return cmake_args
+    return True
 
 
 if __name__ == "__main__":
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     # ライブラリ名
     lib_name = "Fmt"
     # バージョン設定
-    lib_ver = "5.2.0"
+    lib_ver = "5.2.1"
 
     # ビルド実行
     success = com.build(
