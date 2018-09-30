@@ -21,7 +21,8 @@ def result_copy(final_dir, build_dir, platform_name, enable_shared,
     # FastCopyの引数作成
     include_dir = final_dir / "include"
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
+        str(args.fastcopy_path), args.fastcopy_mode,
+        "/exclude=cvconfig.h",
         str(build_dir / "install" / "include"), "/to={:s}".format(
             str(include_dir))
     ]
@@ -33,10 +34,33 @@ def result_copy(final_dir, build_dir, platform_name, enable_shared,
     result_state = com.run_proc(fastcopy_args)
 
     # FastCopyの引数作成
-    files_path = Path(__file__).resolve().parent / "files"
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
-        str(files_path / "opencvset.h"), "/to={:s}".format(str(include_dir))
+        str(args.fastcopy_path), args.fastcopy_mode,
+        str(build_dir / "install" / "include" / "opencv2" / "cvconfig.h"),
+        "/to={:s}".format(str(include_dir))
+    ]
+    if args.verbose:
+        print("FastCopy Args :")
+        for i in fastcopy_args:
+            print(i)
+    # FastCopyを実行
+    result_state = com.run_proc(fastcopy_args)
+
+    # Configヘッダのリネーム
+    config_header_src = include_dir / "cvconfig.h"
+    config_header_dst = include_dir / "cvconfig_{}_{}_{}.h".format(
+        platform_name, "Shared" if enable_shared else "Static",
+        "Debug" if enable_debug else "Release")
+    if config_header_dst.exists():
+        config_header_dst.unlink()
+    config_header_src.rename(config_header_dst)
+
+    # FastCopyの引数作成
+    fastcopy_args = [
+        str(args.fastcopy_path), args.fastcopy_mode,
+        "/include=opencv_*.lib",
+        str(build_dir / "lib"), "/to={:s}".format(
+            str(final_dir / "lib" / platform_name))
     ]
     if args.verbose:
         print("FastCopy Args :")
@@ -47,20 +71,8 @@ def result_copy(final_dir, build_dir, platform_name, enable_shared,
 
     # FastCopyの引数作成
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
-        str(files_path / "OpenCvCopy.bat"), "/to={:s}".format(str(final_dir))
-    ]
-    if args.verbose:
-        print("FastCopy Args :")
-        for i in fastcopy_args:
-            print(i)
-    # FastCopyを実行
-    result_state = com.run_proc(fastcopy_args)
-
-    # FastCopyの引数作成
-    fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
-        "/include=*.dll;*.pdb",
+        str(args.fastcopy_path), args.fastcopy_mode,
+        "/include=*.dll;*.pdb", "/exclude=opencv_waldboost_detector*",
         str(build_dir / "bin"), "/to={:s}".format(
             str(final_dir / "bin" / platform_name))
     ]
@@ -72,11 +84,22 @@ def result_copy(final_dir, build_dir, platform_name, enable_shared,
     result_state = com.run_proc(fastcopy_args)
 
     # FastCopyの引数作成
+    files_path = Path(__file__).resolve().parent / "files"
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
-        "/include=*.lib",
-        str(build_dir / "lib"), "/to={:s}".format(
-            str(final_dir / "lib" / platform_name))
+        str(args.fastcopy_path), args.fastcopy_mode,
+        str(files_path / "opencvset.h"), "/to={:s}".format(str(include_dir))
+    ]
+    if args.verbose:
+        print("FastCopy Args :")
+        for i in fastcopy_args:
+            print(i)
+    # FastCopyを実行
+    result_state = com.run_proc(fastcopy_args)
+
+    # FastCopyの引数作成
+    fastcopy_args = [
+        str(args.fastcopy_path), args.fastcopy_mode,
+        str(files_path / "OpenCvCopy.bat"), "/to={:s}".format(str(final_dir))
     ]
     if args.verbose:
         print("FastCopy Args :")
@@ -88,9 +111,21 @@ def result_copy(final_dir, build_dir, platform_name, enable_shared,
     return result_state
 
 
-def create_cmake_args(cmake_args, source_path, build_base_dir, platform_name,
-                      vc_ver, args, enable_shared, enable_debug):
+def create_cmake_args(cmake_args, source_path, platform_name, vc_ver, args,
+                      enable_shared, enable_debug):
     """CMakeの引数作成"""
+    # CUDAのリンク作成
+    cuda_path_orig = os.getenv(
+        "CUDA_PATH_V9_2",
+        r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.2")
+    cuda_path = source_path / "CUDA"
+    if not cuda_path.exists():
+        subprocess.check_call(
+            ["mklink", "/d", str(cuda_path), cuda_path_orig], shell=True)
+    env_cuda_path = os.getenv("CUDA_PATH")
+    if env_cuda_path == None or env_cuda_path != cuda_path_orig or env_cuda_path != cuda_path:
+        os.environ['CUDA_PATH'] = cuda_path_orig
+    # 変数設定
     if platform_name == "Win32":
         platform_name_short = "x86"
         platform_name_gst = "x86"
@@ -160,8 +195,7 @@ def create_cmake_args(cmake_args, source_path, build_base_dir, platform_name,
         "\\", "/"))
     cmake_args.append("-DMKL_LIBRARIES={};{};{}".format(
         str(mkl_lib_path / "mkl_intel_lp64.lib"),
-        str(mkl_lib_path /
-            ("mkl_sequential.lib" if enable_debug else "mkl_tbb_thread.lib")),
+        str(mkl_lib_path / "mkl_sequential.lib"),
         str(mkl_lib_path / "mkl_core.lib")).replace("\\", "/"))
     cmake_args.append("-DMKL_USE_DLL=OFF")
     cmake_args.append("-DMKL_USE_MULTITHREAD=OFF")

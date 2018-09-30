@@ -1,13 +1,9 @@
 """
-ライブラリビルド
+Inten Build
 """
 
 # -*- coding: utf-8 -*-
 
-import argparse
-import os
-import shutil
-import subprocess
 import sys
 from pathlib import Path
 
@@ -18,7 +14,8 @@ import Common as com
 def intel_copy(final_dir, lib_dir, platform_name, enable_shared, enable_debug,
                args):
     """ビルド結果コピー処理"""
-    intel_lib_dir = Path(r"C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows")
+    intel_lib_dir = Path(
+        r"C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows")
 
     # ライブラリ名
     lib_name_intel = lib_dir.name
@@ -28,7 +25,7 @@ def intel_copy(final_dir, lib_dir, platform_name, enable_shared, enable_debug,
 
     # FastCopyの引数作成
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
+        str(args.fastcopy_path), args.fastcopy_mode,
         str(intel_lib_dir / lib_name_intel / "include"), "/to={:s}".format(
             str(final_dir / "include"))
     ]
@@ -41,7 +38,7 @@ def intel_copy(final_dir, lib_dir, platform_name, enable_shared, enable_debug,
 
     # FastCopyの引数作成
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
+        str(args.fastcopy_path), args.fastcopy_mode,
         "/include=*.dll", "/exclude=*32*",
         str(intel_lib_dir / "redist" / platform_intel / lib_name_intel / "*"),
         "/to={:s}".format(str(final_dir / "bin" / platform_name))
@@ -55,7 +52,7 @@ def intel_copy(final_dir, lib_dir, platform_name, enable_shared, enable_debug,
 
     # FastCopyの引数作成
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
+        str(args.fastcopy_path), args.fastcopy_mode,
         "/include=*.lib",
         str(intel_lib_dir / lib_name_intel / "lib" / platform_intel / "*"),
         "/to={:s}".format(str(final_dir / "lib" / platform_name))

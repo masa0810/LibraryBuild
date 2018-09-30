@@ -6,7 +6,6 @@
 
 import argparse
 import os
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -31,8 +30,13 @@ def get_args():
     )
 
     # 引数追加
+    parser.add_argument("lib_names", help="ビルドするライブラリ", nargs="*")
     parser.add_argument(
-        "-g", "--gui", help="CMake GUI 表示", action="store_true", default=False)
+        "-i",
+        "--enable_install",
+        help="インストール有効化",
+        action="store_true",
+        default=False)
     parser.add_argument(
         "-r",
         "--rebuild",
@@ -42,19 +46,15 @@ def get_args():
     parser.add_argument(
         "-f", "--force", help="強制実行", action="store_true", default=False)
     parser.add_argument(
-        "-v", "--verbose", help="詳細表示", action="store_true", default=False)
-    parser.add_argument(
-        "-i",
-        "--enable_install",
-        help="インストール有効化",
-        action="store_true",
-        default=False)
-    parser.add_argument(
         "-a",
         "--disable_auto_simd",
         help="自動SIMDの無効化",
         action="store_false",
         default=False)
+    parser.add_argument(
+        "-g", "--gui", help="CMake GUI 表示", action="store_true", default=False)
+    parser.add_argument(
+        "-v", "--verbose", help="詳細表示", action="store_true", default=False)
     parser.add_argument(
         "--fastcopy_path",
         help="FastCopy Path",
@@ -161,7 +161,17 @@ def copy(build_dir, lib_name, dst_dir_name, lib_ver, platform_name, vc_ver,
         if args.rebuild:
             if reset_dir_name != final_dir and (args.force or input_yes_or_no(
                     "{:s}が存在します。削除しますか？".format(str(final_dir)))):
-                shutil.rmtree(str(final_dir))
+                # FastCopyの引数作成
+                fastcopy_args = [
+                    str(args.fastcopy_path), args.fastcopy_mode, "/cmd=delete",
+                    str(final_dir), "/no_confirm_del"
+                ]
+                if args.verbose:
+                    print("FastCopy Args :")
+                    for i in fastcopy_args:
+                        print(i)
+                # FastCopyを実行
+                result_state = run_proc(fastcopy_args)
                 reset_dir_name = final_dir
         else:
             for itm in final_dir.glob("{:s}_*".format(lib_name)):
@@ -169,7 +179,18 @@ def copy(build_dir, lib_name, dst_dir_name, lib_ver, platform_name, vc_ver,
                 if itm_name != ver_file:
                     if args.force or input_yes_or_no(
                             "{:s}が存在します。削除しますか？".format(str(itm_name))):
-                        shutil.rmtree(str(final_dir))
+                        # FastCopyの引数作成
+                        fastcopy_args = [
+                            str(args.fastcopy_path), args.fastcopy_mode,
+                            "/cmd=delete",
+                            str(final_dir), "/no_confirm_del"
+                        ]
+                        if args.verbose:
+                            print("FastCopy Args :")
+                            for i in fastcopy_args:
+                                print(i)
+                        # FastCopyを実行
+                        result_state = run_proc(fastcopy_args)
                     break
 
     # コピー処理
@@ -223,8 +244,7 @@ def build(lib_name,
         print("Link Type : {}".format(enable_shared))
 
         # ビルドディレクトリ
-        build_base_dir = args.build_buf / vs_ver / platform_name
-        build_dir = build_base_dir
+        build_dir = args.build_buf / vs_ver / platform_name
         if enable_debug:
             build_dir /= build_type
         if enable_shared:
@@ -236,7 +256,17 @@ def build(lib_name,
         if build_dir.exists() and args.rebuild:
             if args.force or input_yes_or_no("{:s}を削除しますか？".format(
                     str(build_dir))):
-                shutil.rmtree(str(build_dir))
+                # FastCopyの引数作成
+                fastcopy_args = [
+                    str(args.fastcopy_path), args.fastcopy_mode, "/cmd=delete",
+                    str(build_dir), "/no_confirm_del"
+                ]
+                if args.verbose:
+                    print("FastCopy Args :")
+                    for i in fastcopy_args:
+                        print(i)
+                # FastCopyを実行
+                result_state = run_proc(fastcopy_args)
         if not build_dir.exists():
             build_dir.mkdir(parents=True)
 
@@ -255,9 +285,9 @@ def build(lib_name,
             "-DCMAKE_INSTALL_PREFIX={:s}".format(
                 str(build_dir / "install").replace("\\", "/"))
         ]
-        result_state = create_cmake_args_func(
-            cmake_args, source_path, build_base_dir, platform_name, vc_ver,
-            args, enable_shared, enable_debug)
+        result_state = create_cmake_args_func(cmake_args, source_path,
+                                              platform_name, vc_ver, args,
+                                              enable_shared, enable_debug)
         if result_state:
             print("CMake Args :")
             for i in cmake_args:

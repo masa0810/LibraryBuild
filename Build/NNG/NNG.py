@@ -1,13 +1,9 @@
 """
-ライブラリビルド
+NNG Build
 """
 
 # -*- coding: utf-8 -*-
 
-import argparse
-import os
-import shutil
-import subprocess
 import sys
 from pathlib import Path
 
@@ -20,7 +16,7 @@ def result_copy(final_dir, build_dir, platform_name, enable_shared,
     """ビルド結果コピー処理"""
     # FastCopyの引数作成
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
+        str(args.fastcopy_path), args.fastcopy_mode,
         str(build_dir / "install" / "include"), "/to={:s}".format(
             str(final_dir / "include"))
     ]
@@ -33,7 +29,7 @@ def result_copy(final_dir, build_dir, platform_name, enable_shared,
 
     # FastCopyの引数作成
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
+        str(args.fastcopy_path), args.fastcopy_mode,
         "/include=*.dll;*.pdb",
         str(build_dir / "install" / "bin"), "/to={:s}".format(
             str(final_dir / "bin" / platform_name))
@@ -47,7 +43,7 @@ def result_copy(final_dir, build_dir, platform_name, enable_shared,
 
     # FastCopyの引数作成
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
+        str(args.fastcopy_path), args.fastcopy_mode,
         "/include=*.lib",
         str(build_dir / "install" / "lib"), "/to={:s}".format(
             str(final_dir / "lib" / platform_name))
@@ -62,8 +58,8 @@ def result_copy(final_dir, build_dir, platform_name, enable_shared,
     return result_state
 
 
-def create_cmake_args(cmake_args, source_path, build_base_dir, platform_name,
-                      vc_ver, args, enable_shared, enable_debug):
+def create_cmake_args(cmake_args, source_path, platform_name, vc_ver, args,
+                      enable_shared, enable_debug):
     """CMakeの引数作成"""
     cmake_args.append(
         "-DBUILD_SHARED_LIBS={}".format("ON" if enable_shared else "OFF"))

@@ -1,13 +1,9 @@
 """
-ライブラリビルド
+Eigen Build
 """
 
 # -*- coding: utf-8 -*-
 
-import argparse
-import os
-import shutil
-import subprocess
 import sys
 from pathlib import Path
 
@@ -20,7 +16,7 @@ def result_copy(final_dir, build_dir, platform_name, enable_shared,
     """ビルド結果コピー処理"""
     # FastCopyの引数作成
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
+        str(args.fastcopy_path), args.fastcopy_mode,
         "/exclude=*.txt;*.md",
         str(build_dir / "install" / "include" / "eigen3"), "/to={:s}".format(
             str(final_dir / "include"))
@@ -35,8 +31,8 @@ def result_copy(final_dir, build_dir, platform_name, enable_shared,
     return result_state
 
 
-def create_cmake_args(cmake_args, source_path, build_base_dir, platform_name,
-                      vc_ver, args, enable_shared, enable_debug):
+def create_cmake_args(cmake_args, source_path, platform_name, vc_ver, args,
+                      enable_shared, enable_debug):
     """CMakeの引数作成"""
     cmake_args.append("-DBUILD_TESTING=OFF")
 

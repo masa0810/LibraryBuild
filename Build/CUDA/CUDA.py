@@ -1,13 +1,10 @@
 """
-ライブラリビルド
+CUDA Build
 """
 
 # -*- coding: utf-8 -*-
 
-import argparse
 import os
-import shutil
-import subprocess
 import sys
 from pathlib import Path
 
@@ -28,7 +25,7 @@ def cuda_copy(final_dir, lib_dir, platform_name, enable_shared, enable_debug,
 
     # FastCopyの引数作成
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
+        str(args.fastcopy_path), args.fastcopy_mode,
         str(lib_dir / "include"), "/to={:s}".format(
             str(final_dir / "include"))
     ]
@@ -41,7 +38,7 @@ def cuda_copy(final_dir, lib_dir, platform_name, enable_shared, enable_debug,
 
     # FastCopyの引数作成
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
+        str(args.fastcopy_path), args.fastcopy_mode,
         "/include=*.dll", "/exclude=*32*",
         str(lib_dir / "bin"), "/to={:s}".format(
             str(final_dir / "bin" / platform_name))
@@ -55,7 +52,7 @@ def cuda_copy(final_dir, lib_dir, platform_name, enable_shared, enable_debug,
 
     # FastCopyの引数作成
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
+        str(args.fastcopy_path), args.fastcopy_mode,
         "/include=*.lib",
         str(lib_dir / "lib" / platform_name), "/to={:s}".format(
             str(final_dir / "lib" / platform_name))

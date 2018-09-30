@@ -1,13 +1,9 @@
 """
-ライブラリビルド
+TBB Build
 """
 
 # -*- coding: utf-8 -*-
 
-import argparse
-import os
-import shutil
-import subprocess
 import sys
 from pathlib import Path
 
@@ -33,7 +29,7 @@ def tbb_copy(final_dir, lib_dir, platform_name, enable_shared, enable_debug,
     # FastCopyの引数作成
     include_dir = final_dir / "include"
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
+        str(args.fastcopy_path), args.fastcopy_mode,
         "/exclude=*.html",
         str(intel_lib_dir / lib_name_intel / "include"), "/to={:s}".format(
             str(include_dir))
@@ -48,7 +44,7 @@ def tbb_copy(final_dir, lib_dir, platform_name, enable_shared, enable_debug,
     # FastCopyの引数作成
     files_path = Path(__file__).resolve().parent / "files"
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
+        str(args.fastcopy_path), args.fastcopy_mode,
         str(files_path / "tbbset.h"), "/to={:s}".format(str(include_dir))
     ]
     if args.verbose:
@@ -60,7 +56,7 @@ def tbb_copy(final_dir, lib_dir, platform_name, enable_shared, enable_debug,
 
     # FastCopyの引数作成
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
+        str(args.fastcopy_path), args.fastcopy_mode,
         str(files_path / "TbbCopy.bat"), "/to={:s}".format(str(final_dir))
     ]
     if args.verbose:
@@ -72,7 +68,7 @@ def tbb_copy(final_dir, lib_dir, platform_name, enable_shared, enable_debug,
 
     # FastCopyの引数作成
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
+        str(args.fastcopy_path), args.fastcopy_mode,
         "/include=*.dll;*.pdb",
         str(intel_lib_dir / "redist" / platform_intel / lib_name_intel /
             vc_ver_intel), "/to={:s}".format(
@@ -87,7 +83,7 @@ def tbb_copy(final_dir, lib_dir, platform_name, enable_shared, enable_debug,
 
     # FastCopyの引数作成
     fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode, "/cmd=diff",
+        str(args.fastcopy_path), args.fastcopy_mode,
         "/exclude=*.def;*.pdb",
         str(intel_lib_dir / lib_name_intel / "lib" / platform_intel /
             vc_ver_intel), "/to={:s}".format(
