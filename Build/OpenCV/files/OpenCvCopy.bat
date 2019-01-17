@@ -1,9 +1,9 @@
 @echo off
-REM ƒtƒ@ƒCƒ‹ƒRƒs[(ˆø”1:ƒrƒ‹ƒhƒ^ƒCƒvAˆø”2:ƒA[ƒLƒeƒNƒ`ƒƒAˆø”3:o—ÍƒfƒBƒŒƒNƒgƒŠ)
+REM ãƒ•ã‚¡ã‚¤ãƒ«ã‚³ãƒ”ãƒ¼(å¼•æ•°1:ãƒ“ãƒ«ãƒ‰ã‚¿ã‚¤ãƒ—ã€å¼•æ•°2:ã‚¢ãƒ¼ã‚­ãƒ†ã‚¯ãƒãƒ£ã€å¼•æ•°3:å‡ºåŠ›ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª)
 
 setlocal ENABLEDELAYEDEXPANSION
 
-set version=343
+set version=401
 set debugSuffix=d
 
 set libDir=%~dp0bin\
@@ -16,20 +16,38 @@ if /platform==/x64 (
 ) else (
 	call :FileCopy %3 %srcDir% opencv_ffmpeg%version%.dll
 )
-for %%f in ( opencv_img_hash%version% opencv_sfm%version% opencv_world%version% ) do (
+for %%f in (
+	opencv_img_hash%version%
+	opencv_sfm%version%
+	opencv_world%version%
+) do (
 	call :CheckConfig %1 %3 %srcDir% %%f dll %debugSuffix%
 )
 
-set cudaVer=92
+set cudaVer=100
 set cudaDir="%~dp0..\..\CUDA\bin\"
 
-for %%f in ( cublas64_%cudaVer%.dll cudart64_%cudaVer%.dll cufft64_%cudaVer%.dll ) do (
+for %%f in (
+	cublas64_%cudaVer%.dll
+	cudart64_%cudaVer%.dll
+	cufft64_%cudaVer%.dll
+	nppc64_%cudaVer%.dll
+	nppial64_%cudaVer%.dll
+	nppicc64_%cudaVer%.dll
+	nppidei64_%cudaVer%.dll
+	nppif64_%cudaVer%.dll
+	nppig64_%cudaVer%.dll
+	nppim64_%cudaVer%.dll
+	nppist64_%cudaVer%.dll
+	nppitc64_%cudaVer%.dll
+	npps64_%cudaVer%.dll
+) do (
 	call :FileCopy %3 %cudaDir% %%f
 )
 
 goto :EOF
 
-REM ƒrƒ‹ƒhƒ^ƒCƒv”»’è(ˆø”1:ƒrƒ‹ƒhƒ^ƒCƒvAˆø”2:o—ÍƒfƒBƒŒƒNƒgƒŠAˆø”3:ƒRƒs[Œ³ƒfƒBƒŒƒNƒgƒŠAˆø”4:ƒtƒ@ƒCƒ‹–¼Aˆø”5:Šg’£qAˆø”6:ƒTƒtƒBƒbƒNƒX•¶š—ñ)
+REM ãƒ“ãƒ«ãƒ‰ã‚¿ã‚¤ãƒ—åˆ¤å®š(å¼•æ•°1:ãƒ“ãƒ«ãƒ‰ã‚¿ã‚¤ãƒ—ã€å¼•æ•°2:å‡ºåŠ›ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã€å¼•æ•°3:ã‚³ãƒ”ãƒ¼å…ƒãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã€å¼•æ•°4:ãƒ•ã‚¡ã‚¤ãƒ«åã€å¼•æ•°5:æ‹¡å¼µå­ã€å¼•æ•°6:ã‚µãƒ•ã‚£ãƒƒã‚¯ã‚¹æ–‡å­—åˆ—)
 :CheckConfig
 
 if /%1==/Debug (
@@ -42,7 +60,7 @@ call :FileCopy %2 %3 %4%suffix%.%5
 exit /b
 goto :EOF
 
-REM ƒtƒ@ƒCƒ‹ƒRƒs[(ˆø”1:o—ÍƒfƒBƒŒƒNƒgƒŠAˆø”2:ƒRƒs[Œ³ƒfƒBƒŒƒNƒgƒŠAˆø”3:ƒtƒ@ƒCƒ‹–¼)
+REM ãƒ•ã‚¡ã‚¤ãƒ«ã‚³ãƒ”ãƒ¼(å¼•æ•°1:å‡ºåŠ›ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã€å¼•æ•°2:ã‚³ãƒ”ãƒ¼å…ƒãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã€å¼•æ•°3:ãƒ•ã‚¡ã‚¤ãƒ«å)
 :FileCopy
 
 set dstPath=%~f1
