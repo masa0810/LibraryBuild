@@ -1,4 +1,12 @@
-﻿#pragma once
+#pragma once
+
+#ifndef _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
+  #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
+#endif
+
+// #ifndef GTEST_LINKED_AS_SHARED_LIBRARY
+//   #define GTEST_LINKED_AS_SHARED_LIBRARY 1
+// #endif
 
 #ifndef _LIB
     // サフィックス設定
