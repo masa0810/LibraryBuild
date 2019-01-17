@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // C++11 std::array
 #if __cplusplus < 201103L && defined(_MSC_VER) && _MSC_VER >= 1600
@@ -53,7 +53,7 @@
     #endif
 
     // バージョン文字列
-    #define __OCV_VER__ "343"
+    #define __OCV_VER__ "401"
 
     #ifdef HAVE_OPENCV_IMG_HASH
         #pragma comment(lib, "opencv_img_hash" __OCV_VER__ __OCV_SUFFIX__ ".lib")
