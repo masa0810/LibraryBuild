@@ -11,7 +11,7 @@ sys.path.append(str((Path(__file__).parent.parent / "Common").resolve()))
 import Common as com
 
 
-def tbb_copy(final_dir, lib_dir, platform_name, enable_shared, enable_debug,
+def lib_copy(final_dir, lib_dir, platform_name, enable_shared, enable_debug,
              args):
     """ビルド結果コピー処理"""
     intel_lib_dir = Path(
@@ -26,75 +26,35 @@ def tbb_copy(final_dir, lib_dir, platform_name, enable_shared, enable_debug,
     # VCバージョン
     vc_ver_intel = "vc{:s}".format(str(final_dir.parent.name)[1:3])
 
-    # FastCopyの引数作成
+    # include
     include_dir = final_dir / "include"
-    fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode,
-        "/exclude=*.html",
+    result_state = com.copy_command(
+        args, "/exclude=*.html",
         str(intel_lib_dir / lib_name_intel / "include"), "/to={:s}".format(
-            str(include_dir))
-    ]
-    if args.verbose:
-        print("FastCopy Args :")
-        for i in fastcopy_args:
-            print(i)
-    # FastCopyを実行
-    result_state = com.run_proc(fastcopy_args)
+            str(include_dir)))
 
-    # FastCopyの引数作成
+    # セットヘッダ
     files_path = Path(__file__).resolve().parent / "files"
-    fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode,
-        str(files_path / "tbbset.h"), "/to={:s}".format(str(include_dir))
-    ]
-    if args.verbose:
-        print("FastCopy Args :")
-        for i in fastcopy_args:
-            print(i)
-    # FastCopyを実行
-    result_state = com.run_proc(fastcopy_args)
+    result_state &= com.copy_command(args, str(files_path / "tbbset.h"),
+                                     "/to={:s}".format(str(include_dir)))
 
-    # FastCopyの引数作成
-    fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode,
-        str(files_path / "TbbCopy.bat"), "/to={:s}".format(str(final_dir))
-    ]
-    if args.verbose:
-        print("FastCopy Args :")
-        for i in fastcopy_args:
-            print(i)
-    # FastCopyを実行
-    result_state = com.run_proc(fastcopy_args)
+    # コピーバッチ
+    result_state &= com.copy_command(args, str(files_path / "TbbCopy.bat"),
+                                     "/to={:s}".format(str(final_dir)))
 
-    # FastCopyの引数作成
-    fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode,
-        "/include=*.dll;*.pdb",
+    # bin
+    result_state &= com.copy_command(
+        args, "/include=*.dll",
         str(intel_lib_dir / "redist" / platform_intel / lib_name_intel /
             vc_ver_intel), "/to={:s}".format(
-                str(final_dir / "bin" / platform_name))
-    ]
-    if args.verbose:
-        print("FastCopy Args :")
-        for i in fastcopy_args:
-            print(i)
-    # FastCopyを実行
-    result_state = com.run_proc(fastcopy_args)
+                str(final_dir / "bin" / platform_name)))
 
-    # FastCopyの引数作成
-    fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode,
-        "/exclude=*.def;*.pdb",
+    # lib
+    result_state &= com.copy_command(
+        args, "/include=*.lib",
         str(intel_lib_dir / lib_name_intel / "lib" / platform_intel /
             vc_ver_intel), "/to={:s}".format(
-                str(final_dir / "lib" / platform_name))
-    ]
-    if args.verbose:
-        print("FastCopy Args :")
-        for i in fastcopy_args:
-            print(i)
-    # FastCopyを実行
-    result_state = com.run_proc(fastcopy_args)
+                str(final_dir / "lib" / platform_name)))
 
     return result_state
 
@@ -107,8 +67,8 @@ if __name__ == "__main__":
     # ライブラリ名
     lib_name = "TBB"
     # バージョン設定
-    lib_ver = "2018Update4"
+    lib_ver = "2019Update2"
     # ビルド実行
-    success = com.build(lib_name, lib_ver, args, None, tbb_copy)
+    success = com.build(lib_name, lib_ver, args, None, lib_copy)
 
     sys.exit(0 if success else -1)
