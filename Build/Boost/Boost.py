@@ -17,65 +17,28 @@ import Common as com
 def result_copy(final_dir, build_dir, platform_name, enable_shared,
                 enable_debug, args):
     """ビルド結果コピー処理"""
-    # FastCopyの引数作成
+    # include
     include_gen = (build_dir / "install" / "include").glob("boost-*")
-    fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode,
-        "/exclude=cvconfig.h",
-        str(next(include_gen)), "/to={:s}".format(str(final_dir / "include"))
-    ]
-    if args.verbose:
-        print("FastCopy Args :")
-        for i in fastcopy_args:
-            print(i)
-    # FastCopyを実行
-    result_state = com.run_proc(fastcopy_args)
+    result_state = com.copy_command(
+        args, str(next(include_gen)), "/to={:s}".format(
+            str(final_dir / "include")))
 
-    # FastCopyの引数作成
-    fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode,
-        "/include=*.lib",
-        str(build_dir / "install" / "lib"), "/to={:s}".format(
-            str(final_dir / "lib" / platform_name))
-    ]
-    if args.verbose:
-        print("FastCopy Args :")
-        for i in fastcopy_args:
-            print(i)
-    # FastCopyを実行
-    result_state = com.run_proc(fastcopy_args)
+    # bin
+    result_state &= com.copy_command(
+        args, "/include=*.dll", str(build_dir / "install" / "lib"),
+        "/to={:s}".format(str(final_dir / "bin" / platform_name)))
 
-    # FastCopyの引数作成
-    fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode,
-        "/include=*.dll",
-        str(build_dir / "install" / "lib"), "/to={:s}".format(
-            str(final_dir / "bin" / platform_name))
-    ]
-    if args.verbose:
-        print("FastCopy Args :")
-        for i in fastcopy_args:
-            print(i)
-    # FastCopyを実行
-    result_state = com.run_proc(fastcopy_args)
+    # bin
+    result_state &= com.copy_command(
+        args, "/include=*.pdb", *[
+            str(itm) for itm in (
+                build_dir / "Tmp").glob("**/boost*{:d}*.pdb".format(vc_ver))
+        ], "/to={:s}".format(str(final_dir / "bin" / platform_name)))
 
-    # FastCopyの引数作成
-    _, vc_ver = com.get_vs_env()
-    pdb_list = [
-        str(itm)
-        for itm in (build_dir / "Tmp").glob("**/boost*{}*.pdb".format(vc_ver))
-    ]
-    fastcopy_args = [
-        str(args.fastcopy_path), args.fastcopy_mode,
-        "/to={:s}".format(str(final_dir / "bin" / platform_name))
-    ]
-    fastcopy_args.extend(pdb_list)
-    if args.verbose:
-        print("FastCopy Args :")
-        for i in fastcopy_args:
-            print(i)
-    # FastCopyを実行
-    result_state = com.run_proc(fastcopy_args)
+    # lib
+    result_state &= com.copy_command(
+        args, "/include=*.lib", str(build_dir / "install" / "lib"),
+        "/to={:s}".format(str(final_dir / "lib" / platform_name)))
 
     return result_state
 
@@ -88,11 +51,11 @@ if __name__ == "__main__":
     # ライブラリ名
     lib_name = "Boost"
     # バージョン設定
-    lib_ver = "1.68"
+    lib_ver = "1.69"
 
     # 引数表示
     print("Num Of CPU : {:d}".format(os.cpu_count()))
-    print("Auto SIMD : {}".format(not args.disable_auto_simd))
+    print("AVX2 : {}".format(args.enable_avx2))
 
     # ライブラリパス
     source_path = Path(__file__).resolve().parent.parent.parent
@@ -154,18 +117,24 @@ if __name__ == "__main__":
     # ビルド引数
     build_args = [
         "b2.exe", "install" if args.enable_install else "stage",
-        "toolset={}".format(toolset_name),
-        "address-model={}".format("32" if platform_name == "Win32" else "64"),
-        "link=static,shared", "runtime-link=shared", "threading=multi",
-        "variant=release,debug", "embed-manifest=off", "debug-symbols=on",
-        "-j{}".format(os.cpu_count()), "--build-dir={}".format(build_tmp),
-        "--prefix={}".format(install_dir), "--stagedir={}".format(install_dir),
-        "--build-type=complete", "--without-mpi"
+        "toolset={:s}".format(toolset_name), "address-model={:s}".format(
+            "32" if platform_name == "Win32" else "64"), "link=static,shared",
+        "runtime-link=shared", "threading=multi", "variant=release,debug",
+        "embed-manifest=off", "debug-symbols=on", "-j{:d}".format(
+            os.cpu_count()), "-sBZIP2_SOURCE={:s}".format(
+                str(source_path / "bzip2")), "-sZLIB_SOURCE={:s}".format(
+                    str(source_path / "zlib")), "--build-dir={:s}".format(
+                        str(build_tmp)),
+        "--prefix={:s}".format(str(install_dir)), "--stagedir={:s}".format(
+            str(install_dir)), "--build-type=complete", "--without-mpi"
     ]
-    if args.disable_auto_simd:
-        build_args.append("instruction-set=nehalem")
-    if toolset_name == "msvc-14.0" or toolset_name == "msvc-14.1":
+    if not args.enable_avx2:
+        build_args.append("instruction-set=ivy-bridge")
+    if toolset_name == "msvc-14.0":
         build_args.append("cxxflags=/std:c++latest")
+    elif toolset_name == "msvc-14.1":
+        arch_flag = "/arch:AVX2" if args.enable_avx2 else "/arch:AVX"
+        build_args.append("cxxflags=/std:c++latest {:s}".format(arch_flag))
     if args.verbose:
         print("Boost Build Args :")
         for i in build_args:
