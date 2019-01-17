@@ -47,9 +47,9 @@ def get_args():
         "-f", "--force", help="強制実行", action="store_true", default=False)
     parser.add_argument(
         "-a",
-        "--disable_auto_simd",
-        help="自動SIMDの無効化",
-        action="store_false",
+        "--enable_avx2",
+        help="AVX2の有効化",
+        action="store_true",
         default=False)
     parser.add_argument(
         "-g", "--gui", help="CMake GUI 表示", action="store_true", default=False)
@@ -58,19 +58,24 @@ def get_args():
     parser.add_argument(
         "--fastcopy_path",
         help="FastCopy Path",
-        default=r"C:\Program Files\FastCopy\FastCopy.exe",
+        default=r"C:\Library\Source\Build\Tools\FastCopy\FastCopy.exe",
         type=Path)
     parser.add_argument(
         "--fastcopy_mode", help="FastCopyモード", default="/force_close")
     parser.add_argument(
         "--cmake_dir",
         help="CMake Dir",
-        default=r"C:\Program Files\CMake\bin",
+        default=r"C:\Library\Source\Build\Tools\CMake\bin",
+        type=Path)
+    parser.add_argument(
+        "--nasm_path",
+        help="NASM Path",
+        default=r"C:\Library\Source\Build\Tools\NASM\nasm.exe",
         type=Path)
     parser.add_argument(
         "--ninja_path",
         help="Ninja Path",
-        default=r"E:\Shared\Software\Ninja\ninja.exe",
+        default=r"C:\Library\Source\Build\Tools\Ninja\ninja.exe",
         type=Path)
     parser.add_argument(
         "--build_buf",
@@ -142,6 +147,19 @@ def input_yes_or_no(text=""):
         print("Error! Input again.")
 
 
+def copy_command(args, *copy_args):
+    # 引数作成
+    proc_args = [str(args.fastcopy_path), args.fastcopy_mode]
+    proc_args.extend([arg for arg in copy_args])
+    # 詳細表示
+    if args.verbose:
+        print("FastCopy Args :")
+        for i in proc_args:
+            print(i)
+    # 実行
+    return run_proc(proc_args)
+
+
 def copy(build_dir, lib_name, dst_dir_name, lib_ver, platform_name, vc_ver,
          enable_shared, enable_debug, enable_vs_share, args, copy_func,
          enable_ver_check):
@@ -156,51 +174,47 @@ def copy(build_dir, lib_name, dst_dir_name, lib_ver, platform_name, vc_ver,
     print("Install Dir : {:s}".format(str(final_dir)))
 
     # バージョンチェック
+    result_state = True
     ver_file = "{:s}_{:s}".format(lib_name, lib_ver)
     if final_dir.exists() and enable_ver_check:
         if args.rebuild:
             if reset_dir_name != final_dir and (args.force or input_yes_or_no(
                     "{:s}が存在します。削除しますか？".format(str(final_dir)))):
-                # FastCopyの引数作成
-                fastcopy_args = [
-                    str(args.fastcopy_path), args.fastcopy_mode, "/cmd=delete",
-                    str(final_dir), "/no_confirm_del"
-                ]
-                if args.verbose:
-                    print("FastCopy Args :")
-                    for i in fastcopy_args:
-                        print(i)
-                # FastCopyを実行
-                result_state = run_proc(fastcopy_args)
+                # 削除処理
+                result_state = copy_command(args, "/cmd=delete",
+                                            "/no_confirm_del", str(final_dir))
                 reset_dir_name = final_dir
         else:
             for itm in final_dir.glob("{:s}_*".format(lib_name)):
                 itm_name = itm.name
+                # 別バージョンが存在
                 if itm_name != ver_file:
                     if args.force or input_yes_or_no(
                             "{:s}が存在します。削除しますか？".format(str(itm_name))):
-                        # FastCopyの引数作成
-                        fastcopy_args = [
-                            str(args.fastcopy_path), args.fastcopy_mode,
-                            "/cmd=delete",
-                            str(final_dir), "/no_confirm_del"
-                        ]
-                        if args.verbose:
-                            print("FastCopy Args :")
-                            for i in fastcopy_args:
-                                print(i)
-                        # FastCopyを実行
-                        result_state = run_proc(fastcopy_args)
+                        # 削除処理
+                        result_state = copy_command(args, "/cmd=delete",
+                                                    "/no_confirm_del",
+                                                    str(final_dir))
                     break
+                # 同一バージョンが存在 かつ 共通ライブラリの場合
+                elif enable_vs_share:
+                    print("[{:s}] Skip Copy".format(lib_name))
+                    return True
 
     # コピー処理
-    result_state = copy_func(final_dir, build_dir, platform_name,
-                             enable_shared, enable_debug, args)
+    if result_state:
+        result_state = copy_func(final_dir, build_dir, platform_name,
+                                 enable_shared, enable_debug, args)
+    else:
+        print("Error error final directory")
 
     # バージョン番号ファイル追加
-    ver_file_path = final_dir / ver_file
-    if not ver_file_path.exists():
-        ver_file_path.touch()
+    if result_state:
+        ver_file_path = final_dir / ver_file
+        if not ver_file_path.exists():
+            ver_file_path.touch()
+    else:
+        print("Error result copy")
 
     return result_state
 
@@ -219,7 +233,7 @@ def build(lib_name,
     """ビルド実行"""
     # 引数表示
     print("Num Of CPU : {:d}".format(os.cpu_count()))
-    print("Auto SIMD : {}".format(not args.disable_auto_simd))
+    print("AVX2 : {}".format(args.enable_avx2))
 
     # ライブラリパス
     source_path = Path(__file__).resolve().parent.parent.parent
@@ -228,20 +242,21 @@ def build(lib_name,
     print("Library Dir : {:s}".format(str(lib_dir)))
 
     # メモリモデル
-    platform_name = os.getenv("Platform", "Win32")
+    platform_name = os.getenv("Platform", "Win32").lower()
     print("Platform : {:s}".format(platform_name))
 
     # Visual Studio 環境
     vs_ver, vc_ver = get_vs_env()
     print("VS : {:s}, VC : {:d}".format(vs_ver, vc_ver))
 
+    result_state = True
     if create_cmake_args_func != None:
         # ビルドタイプ
         build_type = "Debug" if enable_debug else "Release"
-        print("Build Type : {}".format(enable_debug))
+        print("Build Type : {:s}".format(build_type))
         # リンクタイプ
         link_type = "Shared" if enable_shared else "Static"
-        print("Link Type : {}".format(enable_shared))
+        print("Link Type : {:s}".format(link_type))
 
         # ビルドディレクトリ
         build_dir = args.build_buf / vs_ver / platform_name
@@ -252,78 +267,93 @@ def build(lib_name,
         build_dir /= lib_name
         print("Build Dir : {:s}".format(str(build_dir)))
 
-        # ディレクトリ作成
-        if build_dir.exists() and args.rebuild:
-            if args.force or input_yes_or_no("{:s}を削除しますか？".format(
-                    str(build_dir))):
-                # FastCopyの引数作成
-                fastcopy_args = [
-                    str(args.fastcopy_path), args.fastcopy_mode, "/cmd=delete",
-                    str(build_dir), "/no_confirm_del"
-                ]
-                if args.verbose:
-                    print("FastCopy Args :")
-                    for i in fastcopy_args:
-                        print(i)
-                # FastCopyを実行
-                result_state = run_proc(fastcopy_args)
-        if not build_dir.exists():
-            build_dir.mkdir(parents=True)
-
         # 現在のディレクトリを保存
         cur_dir = str(Path.cwd())
         print("Current Dir : {:s}".format(cur_dir))
-        # ディレクトリ移動
-        os.chdir(build_dir)
 
-        # CMake引数リスト
-        cmake_args = [
-            str(args.cmake_dir / "cmake"),
-            str(lib_dir), "-G", "Ninja", "-DCMAKE_MAKE_PROGRAM={:s}".format(
-                str(args.ninja_path).replace("\\", "/")),
-            "-DCMAKE_BUILD_TYPE={:s}".format(build_type),
-            "-DCMAKE_INSTALL_PREFIX={:s}".format(
-                str(build_dir / "install").replace("\\", "/"))
-        ]
-        result_state = create_cmake_args_func(cmake_args, source_path,
-                                              platform_name, vc_ver, args,
-                                              enable_shared, enable_debug)
+        # ディレクトリチェック
+        if build_dir.exists() and args.rebuild:
+            if args.force or input_yes_or_no("{:s}を削除しますか？".format(
+                    str(build_dir))):
+                # 削除処理
+                result_state = copy_command(args, "/cmd=delete",
+                                            "/no_confirm_del", str(build_dir))
+        if result_state:
+            # ディレクトリ作成
+            if not build_dir.exists():
+                build_dir.mkdir(parents=True)
+
+            # ディレクトリ移動
+            os.chdir(build_dir)
+
+            # マニュフェスト無効化
+            linker_flag = "/machine:{:s} /MANIFEST:NO".format(
+                "x64" if platform_name == "x64" else "x86")
+            # CMake引数リスト
+            cmake_args = [
+                str(args.cmake_dir / "cmake"),
+                str(lib_dir), "-G", "Ninja",
+                "-DCMAKE_MAKE_PROGRAM={:s}".format(
+                    str(args.ninja_path).replace(
+                        "\\",
+                        "/")), "-DCMAKE_BUILD_TYPE={:s}".format(build_type),
+                "-DCMAKE_INSTALL_PREFIX={:s}".format(
+                    str(build_dir / "install").replace("\\", "/")),
+                "-DCMAKE_EXE_LINKER_FLAGS={:s}".format(linker_flag),
+                "-DCMAKE_MODULE_LINKER_FLAGS={:s}".format(linker_flag),
+                "-DCMAKE_SHARED_LINKER_FLAGS={:s}".format(linker_flag)
+            ]
+            result_state = create_cmake_args_func(
+                cmake_args, source_path, platform_name, vs_ver, vc_ver, args,
+                enable_shared, enable_debug)
+        else:
+            print("Error delete old directory")
+
+        # CMakeを実行
         if result_state:
             print("CMake Args :")
             for i in cmake_args:
                 print(i)
-
-            # CMakeを実行
             result_state = run_proc(cmake_args)
             # CMake GUIを表示
-            if result_state and args.gui:
-                result_state = run_proc(
+            if args.gui:
+                result_state &= run_proc(
                     [str(args.cmake_dir / "cmake-gui"),
                      str(build_dir)])
+        else:
+            print("Error create cmake args")
 
-            if result_state:
-                # Ninja引数リスト
-                ninja_args = [str(args.ninja_path), "-j", str(os.cpu_count())]
-                if args.enable_install:
-                    ninja_args.append("install")
-                if args.verbose:
-                    print("Ninja Args :")
-                    for i in ninja_args:
-                        print(i)
-                # Ninjaを実行
-                result_state = run_proc(ninja_args)
+        # Ninjaを実行
+        if result_state:
+            # Ninja引数リスト
+            ninja_args = [
+                str(args.ninja_path), "-j",
+                str(os.cpu_count()), "install"
+            ]
+            if args.verbose:
+                print("Ninja Args :")
+                for i in ninja_args:
+                    print(i)
+            result_state = run_proc(ninja_args)
+        else:
+            print("Error cmake")
 
         # ディレクトリ移動
         os.chdir(cur_dir)
     else:
-        result_state = True
         build_dir = lib_dir
 
     # 出力ファイルコピー
-    if result_state and args.enable_install:
-        result_state = copy(
-            build_dir, lib_name, dst_dir_name if dst_dir_name else lib_name,
-            lib_ver, platform_name, vc_ver, enable_shared, enable_debug,
-            enable_vs_share, args, copy_func, enable_ver_check)
+    if result_state:
+        if args.enable_install and copy_func != None:
+            result_state = copy(build_dir.resolve(), lib_name,
+                                dst_dir_name if dst_dir_name else lib_name,
+                                lib_ver, platform_name, vc_ver, enable_shared,
+                                enable_debug, enable_vs_share, args, copy_func,
+                                enable_ver_check)
+            if not result_state:
+                print("Error copy")
+    else:
+        print("Error ninja")
 
     return result_state
